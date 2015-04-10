@@ -1,0 +1,2 @@
+sandman>=0.9.8
+git+https://github.com/jmcarp/csvkit@create-primary-key
