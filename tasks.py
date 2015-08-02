@@ -6,6 +6,7 @@ import sqlalchemy as sa
 from invoke import task, run
 from flask import request
 from flask.ext.basicauth import BasicAuth
+from sandman.model.models import Model
 
 EXTENSIONS = [
     '.csv',
@@ -20,6 +21,9 @@ SQLA_URI = os.getenv(
 
 def _get_name(path):
     return os.path.splitext(os.path.split(path)[1])[0]
+
+class ReadOnlyModel(Model):
+    __methods__ = ('GET', )
 
 @task
 def requirements(upgrade=True):
@@ -72,7 +76,7 @@ def serve(host='0.0.0.0', port=5000, debug=False):
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
-    activate()
+    activate(base=ReadOnlyModel, browser=False)
     basic_auth = BasicAuth(app)
     @app.before_request
     def protect_admin():
