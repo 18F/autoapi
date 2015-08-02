@@ -61,11 +61,12 @@ def apify(file_name, table_name=None, primary_name='id', insert=True):
     run(cmd)
 
 @task
-def serve(port=5000, debug=False):
+def serve(host='0.0.0.0', port=5000, debug=False):
     from sandman import app
     from sandman.model import activate
     import utils
     app.json_encoder = utils.APIJSONEncoder
+    app.config['SERVER_PORT'] = port
     app.config['SQLALCHEMY_DATABASE_URI'] = SQLA_URI
     activate()
-    app.run(port=port, debug=debug)
+    app.run(host=host, port=port, debug=debug)
