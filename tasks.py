@@ -1,18 +1,17 @@
 import os
+import logging
 import tempfile
 
 import boto
+import csvkit.convert
 import sqlalchemy as sa
 from invoke import task, run
 from flask import request
 from flask.ext.basicauth import BasicAuth
 from sandman.model.models import Model
 
-EXTENSIONS = [
-    '.csv',
-    '.tsv',
-    '.xlsx',
-]
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
 
 SQLA_URI = os.getenv(
     'AUTOAPI_SQLA_URI',
@@ -39,15 +38,19 @@ def load_bucket(bucket_name, primary_name='id'):
     keys = bucket.get_all_keys()
     for key in keys:
         name, ext = os.path.splitext(key.name)
-        if ext not in EXTENSIONS:
+        if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
             continue
         with tempfile.NamedTemporaryFile(suffix=ext) as temp:
             temp.write(key.get_contents_as_string())
-            apify(temp.name, table_name=name, primary_name=primary_name)
+            try:
+                apify(temp.name, table_name=name, primary_name=primary_name)
+            except Exception as error:
+                logger.exception(error)
 
 @task
 def apify(file_name, table_name=None, primary_name='id', insert=True):
     table_name = table_name or _get_name(file_name)
+    logger.info('Importing {0} to table {1}'.format(file_name, table_name))
     cmd_csv = 'in2csv {0}'.format(file_name)
     cmd_sql = 'csvsql --db {0} --primary {1} --tables {2}'.format(
         SQLA_URI,
