@@ -4,8 +4,8 @@ from flask import json
 import sqlalchemy as sa
 
 from sandman import db
-from sandman.model import activate
 from sandman.model.models import Model
+from sandman.model import activate as sandman_activate
 
 import config
 
@@ -20,6 +20,9 @@ class APIJSONEncoder(json.JSONEncoder):
         if hasattr(o, 'isoformat'):
             return o.isoformat()
         return super(APIJSONEncoder, self).default(o)
+
+def activate(base=ReadOnlyModel, browser=False, admin=False, **kwargs):
+    sandman_activate(base=base, browser=browser, admin=admin, **kwargs)
 
 def drop_table(tablename, metadata=None, engine=None):
     metadata = metadata or sa.MetaData()

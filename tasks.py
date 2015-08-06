@@ -1,6 +1,5 @@
 import os
 import logging
-import functools
 import concurrent.futures
 
 from invoke import task, run
@@ -42,7 +41,6 @@ def apify(file_name, table_name=None, primary_name='id', insert=True):
 @task
 def serve(host='0.0.0.0', port=5000, debug=False):
     from sandman import app
-    from sandman.model import activate
     app.json_encoder = utils.APIJSONEncoder
     app.config['SERVER_PORT'] = port
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
@@ -61,10 +59,13 @@ def serve(host='0.0.0.0', port=5000, debug=False):
     blueprint = aws.make_blueprint()
     app.register_blueprint(blueprint)
 
-    # Load bucket in a separate process, then activate sandman in the main process
-    with concurrent.futures.ProcessPoolExecutor() as pool:
-        future = pool.submit(aws.fetch_bucket)
-        callback = functools.partial(activate, base=utils.ReadOnlyModel, browser=False)
-        future.add_done_callback(callback)
+    # Activate sandman with existing models
+    utils.activate(admin=True)
+
+    # Load bucket in a separate process, then re-activate sandman in the main process
+    pool = concurrent.futures.ProcessPoolExecutor()
+    future = pool.submit(aws.fetch_bucket)
+    future.add_done_callback(utils.activate)
+    pool.shutdown(wait=False)
 
     app.run(host=host, port=port, debug=debug)
