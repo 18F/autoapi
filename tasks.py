@@ -5,6 +5,7 @@ import concurrent.futures
 
 from invoke import task, run
 from flask import request
+from flask.ext.cors import CORS
 from flask.ext.basicauth import BasicAuth
 
 import aws
@@ -47,6 +48,8 @@ def serve(host='0.0.0.0', port=5000, debug=False):
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
+
+    CORS(app)
     basic_auth = BasicAuth(app)
 
     @app.before_request
