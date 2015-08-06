@@ -43,6 +43,7 @@ def serve(host='0.0.0.0', port=5000, debug=False):
     from sandman import app
     app.json_encoder = utils.APIJSONEncoder
     app.config['SERVER_PORT'] = port
+    app.config['CASE_INSENSITIVE'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
