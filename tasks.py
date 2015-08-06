@@ -1,28 +1,18 @@
 import os
 import logging
-import tempfile
+import functools
+import concurrent.futures
 
-import boto
-import csvkit.convert
-import sqlalchemy as sa
 from invoke import task, run
 from flask import request
 from flask.ext.basicauth import BasicAuth
-from sandman.model.models import Model
+
+import aws
+import utils
+import config
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
-
-SQLA_URI = os.getenv(
-    'AUTOAPI_SQLA_URI',
-    ''.join(['sqlite:///', os.path.dirname(__file__), '/autoapi.sqlite']),
-)
-
-def _get_name(path):
-    return os.path.splitext(os.path.split(path)[1])[0]
-
-class ReadOnlyModel(Model):
-    __methods__ = ('GET', )
 
 @task
 def requirements(upgrade=True):
@@ -32,59 +22,46 @@ def requirements(upgrade=True):
     run(cmd)
 
 @task
-def load_bucket(bucket_name, primary_name='id'):
-    conn = boto.connect_s3()
-    bucket = conn.get_bucket(bucket_name)
-    keys = bucket.get_all_keys()
-    for key in keys:
-        name, ext = os.path.splitext(key.name)
-        if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
-            continue
-        with tempfile.NamedTemporaryFile(suffix=ext) as temp:
-            temp.write(key.get_contents_as_string())
-            try:
-                apify(temp.name, table_name=name, primary_name=primary_name)
-            except Exception as error:
-                logger.exception(error)
-
-@task
 def apify(file_name, table_name=None, primary_name='id', insert=True):
-    table_name = table_name or _get_name(file_name)
+    table_name = table_name or utils.get_name(file_name)
     logger.info('Importing {0} to table {1}'.format(file_name, table_name))
     cmd_csv = 'in2csv {0}'.format(file_name)
     cmd_sql = 'csvsql --db {0} --primary {1} --tables {2}'.format(
-        SQLA_URI,
+        config.SQLA_URI,
         primary_name,
         table_name,
     )
     if insert:
         cmd_sql += ' --insert'
-    engine = sa.create_engine(SQLA_URI)
-    metadata = sa.MetaData()
-    try:
-        table = sa.Table(table_name, metadata, autoload_with=engine)
-        table.drop(engine)
-    except sa.exc.NoSuchTableError:
-        pass
+    utils.drop_table(table_name)
     cmd = '{0} | {1}'.format(cmd_csv, cmd_sql)
     run(cmd)
+    utils.activate(base=utils.ReadOnlyModel, browser=False, admin=False, reflect_all=True)
 
 @task
 def serve(host='0.0.0.0', port=5000, debug=False):
     from sandman import app
     from sandman.model import activate
-    import utils
     app.json_encoder = utils.APIJSONEncoder
     app.config['SERVER_PORT'] = port
-    app.config['SQLALCHEMY_DATABASE_URI'] = SQLA_URI
+    app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
-    activate(base=ReadOnlyModel, browser=False)
     basic_auth = BasicAuth(app)
+
     @app.before_request
     def protect_admin():
         if request.path.startswith('/admin/'):
             if not basic_auth.authenticate():
                 return basic_auth.challenge()
-    basic_auth = BasicAuth(app)
+
+    blueprint = aws.make_blueprint()
+    app.register_blueprint(blueprint)
+
+    # Load bucket in a separate process, then activate sandman in the main process
+    with concurrent.futures.ProcessPoolExecutor() as pool:
+        future = pool.submit(aws.fetch_bucket)
+        callback = functools.partial(activate, base=utils.ReadOnlyModel, browser=False)
+        future.add_done_callback(callback)
+
     app.run(host=host, port=port, debug=debug)
