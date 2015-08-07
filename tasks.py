@@ -36,6 +36,7 @@ def apify(file_name, table_name=None, primary_name='id', insert=True):
     utils.drop_table(table_name)
     cmd = '{0} | {1}'.format(cmd_csv, cmd_sql)
     run(cmd)
+    utils.index_table(table_name, config.CASE_INSENSITIVE)
     utils.activate(base=utils.ReadOnlyModel, browser=False, admin=False, reflect_all=True)
 
 @task
@@ -43,7 +44,7 @@ def serve(host='0.0.0.0', port=5000, debug=False):
     from sandman import app
     app.json_encoder = utils.APIJSONEncoder
     app.config['SERVER_PORT'] = port
-    app.config['CASE_INSENSITIVE'] = True
+    app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
