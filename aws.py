@@ -15,6 +15,7 @@ import aws
 import tasks
 import utils
 import config
+import signing
 
 logger = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ class AwsWebhookView(MethodView):
     def post(self):
         data = json.loads(request.data.decode('utf-8'))
         logger.info('Received hook with data {0}'.format(data))
+        signing.verify(data)
         if data['Type'] == 'SubscriptionConfirmation':
             self.handle_subscribe(data)
         elif data['Type'] == 'Notification':
