@@ -22,22 +22,14 @@ def requirements(upgrade=True):
     run(cmd)
 
 @task
-def apify(file_name, table_name=None, primary_name='id', insert=True):
-    table_name = table_name or utils.get_name(file_name)
-    logger.info('Importing {0} to table {1}'.format(file_name, table_name))
-    cmd_csv = 'in2csv {0}'.format(file_name)
-    cmd_sql = 'csvsql --db {0} --primary {1} --tables {2}'.format(
-        config.SQLA_URI,
-        primary_name,
-        table_name,
-    )
-    if insert:
-        cmd_sql += ' --insert'
-    utils.drop_table(table_name)
-    cmd = '{0} | {1}'.format(cmd_csv, cmd_sql)
-    run(cmd)
-    utils.index_table(table_name, config.CASE_INSENSITIVE)
-    utils.activate(base=utils.ReadOnlyModel, browser=False, admin=False, reflect_all=True)
+def apify(filename, tablename=None):
+    tablename = tablename or utils.get_name(filename)
+    logger.info('Importing {0} to table {1}'.format(filename, tablename))
+    utils.drop_table(tablename)
+    utils.load_table(filename, tablename)
+    utils.index_table(tablename, config.CASE_INSENSITIVE)
+    utils.activate(base=utils.ReadOnlyModel)
+    logger.info('Finished importing {0}'.format(filename))
 
 @task
 def serve(host='0.0.0.0', port=5000, debug=False):

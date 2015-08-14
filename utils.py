@@ -3,6 +3,10 @@ import os
 from flask import json
 import sqlalchemy as sa
 
+import pandas as pd
+from pandas.io.sql import SQLTable
+from pandas.io.sql import pandasSQL_builder
+
 from sandman import db
 from sandman.model.models import Model
 from sandman.model import activate as sandman_activate
@@ -21,8 +25,25 @@ class APIJSONEncoder(json.JSONEncoder):
             return o.isoformat()
         return super(APIJSONEncoder, self).default(o)
 
-def activate(base=ReadOnlyModel, browser=False, admin=False, **kwargs):
-    sandman_activate(base=base, browser=browser, admin=admin, **kwargs)
+def activate(*args, base=ReadOnlyModel, browser=False, admin=False, reflect_all=True):
+    sandman_activate(base=base, browser=browser, admin=admin, reflect_all=reflect_all)
+
+def to_sql(name, engine, frame, chunksize=None, **kwargs):
+    table = SQLTable(name, engine, frame=frame, **kwargs)
+    table.create()
+    table.insert(chunksize)
+
+def load_table(filename, tablename, engine=None, infer_size=100, chunk_size=1000):
+    engine = engine or sa.create_engine(config.SQLA_URI)
+    dtypes = pd.read_csv(filename, nrows=infer_size).dtypes
+    chunks = pd.read_csv(filename, chunksize=chunk_size, iterator=True, dtype=dtypes)
+    for idx, chunk in enumerate(chunks):
+        chunk.index += chunk_size * idx
+        sql_engine = pandasSQL_builder(engine)
+        to_sql(
+            tablename, sql_engine, chunk,
+            chunksize=chunk_size, keys='index', if_exists='append',
+        )
 
 def index_table(tablename, case_insensitive=False, metadata=None, engine=None):
     """Index all columns on `tablename`, optionally using case-insensitive
@@ -32,14 +53,21 @@ def index_table(tablename, case_insensitive=False, metadata=None, engine=None):
     engine = engine or sa.create_engine(config.SQLA_URI)
     table = sa.Table(tablename, metadata, autoload_with=engine)
     for label, column in table.columns.items():
+        if label == 'index':
+            continue
         index_name = 'ix_{0}'.format(label.lower())
-        index_column = sa.func.upper(column) if case_insensitive else column
-        try:
-            index = sa.Index(index_name, index_column)
-            index.create(engine)
-        except sa.exc.OperationalError:
-            index = sa.Index(index_name, column)
-            index.create(engine)
+        indexes = [sa.Index(index_name, column)]
+        if case_insensitive:
+            indexes.insert(0, sa.Index(index_name, sa.func.upper(column)))
+        for index in indexes:
+            try:
+                index.drop(engine)
+            except sa.exc.OperationalError:
+                pass
+            try:
+                index.create(engine)
+            except sa.exc.OperationalError:
+                pass
 
 def drop_table(tablename, metadata=None, engine=None):
     metadata = metadata or sa.MetaData()

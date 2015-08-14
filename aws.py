@@ -73,6 +73,7 @@ class AwsWebhookView(MethodView):
 
     def post(self):
         data = json.loads(request.data.decode('utf-8'))
+        logger.info('Received hook with data {0}'.format(data))
         if data['Type'] == 'SubscriptionConfirmation':
             self.handle_subscribe(data)
         elif data['Type'] == 'Notification':
@@ -96,7 +97,7 @@ class AwsWebhookView(MethodView):
             elif record['eventName'].startswith('ObjectRemoved'):
                 utils.drop_table(name, metadata=db.metadata, engine=db.engine)
 
-def fetch_bucket(bucket_name=None, primary_name='id'):
+def fetch_bucket(bucket_name=None):
     bucket_name = bucket_name or config.BUCKET_NAME
     logger.info('Importing bucket {0}'.format(bucket_name))
     aws.subscribe(bucket_name)
