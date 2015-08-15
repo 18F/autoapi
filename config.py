@@ -13,6 +13,7 @@ def parse_bool(value, default=False):
     logger.warn('Value "{0}" cannot be coerced to boolean'.format(value))
     return default
 
+API_NAME = os.environ.get('AUTOAPI_NAME')
 BUCKET_NAME = os.environ.get('AUTOAPI_BUCKET')
 CASE_INSENSITIVE = parse_bool(os.environ.get('AUTOAPI_CASE_INSENSITIVE', True))
 SQLA_URI = os.getenv(

@@ -43,6 +43,7 @@ def get_backend(name, host):
 
 def get_payload(name, host):
     """Build payload to create or update API backend."""
+    route = os.path.join('/api-program', name)
     return {
         'api': {
             'name': name,
@@ -58,8 +59,8 @@ def get_payload(name, host):
             ],
             'url_matches': [
                 {
-                    'frontend_prefix': os.path.join('/api-program', name),
-                    'backend_prefix': '/',
+                    'frontend_prefix': route,
+                    'backend_prefix': route,
                 }
             ],
         }

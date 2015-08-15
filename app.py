@@ -5,6 +5,7 @@ from sandman import app
 from flask import request
 from flask.ext.cors import CORS
 from flask.ext.basicauth import BasicAuth
+from werkzeug.wsgi import DispatcherMiddleware
 
 import aws
 import utils
@@ -39,4 +40,7 @@ def make_app():
 
     utils.activate(admin=True)
 
-    return app
+    route = os.path.join('/api-program', config.API_NAME)
+    container = DispatcherMiddleware(app.wsgi_app, {route: app})
+
+    return container
