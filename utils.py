@@ -79,6 +79,11 @@ def drop_table(tablename, metadata=None, engine=None):
         pass
     refresh_tables()
 
+def get_tables(engine=None):
+    engine = engine or sa.create_engine(config.SQLA_URI)
+    inspector = sa.engine.reflection.Inspector.from_engine(db.engine)
+    return set(inspector.get_table_names())
+
 def refresh_tables():
     db.metadata.clear()
-    activate(base=ReadOnlyModel, reflect_all=True, browser=False, admin=False)
+    activate()
