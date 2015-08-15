@@ -1,3 +1,4 @@
+"""Helpers for subscribing to S3 buckets."""
 import os
 import json
 import logging

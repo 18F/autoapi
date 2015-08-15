@@ -1,3 +1,4 @@
+"""Helpers for verifying SNS signatures."""
 import base64
 
 import requests
