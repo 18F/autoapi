@@ -2,6 +2,7 @@ import logging
 
 from invoke import task, run
 
+import aws
 import utils
 import config
 
@@ -23,3 +24,7 @@ def apify(filename, tablename=None):
     utils.load_table(filename, tablename)
     utils.index_table(tablename, config.CASE_INSENSITIVE)
     logger.info('Finished importing {0}'.format(filename))
+
+@task
+def fetch_bucket(bucket_name=None):
+    aws.fetch_bucket(bucket_name)

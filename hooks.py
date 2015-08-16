@@ -1,11 +1,4 @@
-import os
-import sys
-import multiprocessing
-
-sys.path.insert(0, os.getcwd())
-import aws
+import subprocess
 
 def when_ready(server):
-    pool = multiprocessing.Pool(processes=1)
-    pool.apply_async(aws.fetch_bucket)
-    pool.close()
+    subprocess.Popen(['invoke', 'fetch_bucket'])
