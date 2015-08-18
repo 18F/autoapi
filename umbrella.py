@@ -33,13 +33,8 @@ def get_backend(name, host):
     """Get existing API backend matching name and host."""
     response = requests.get(endpoints['apis'], headers=headers)
     backends = response.json()['data']
-    return next(
-        (
-            each for each in backends
-            if each['name'] == name and each['backend_host'] == host
-        ),
-        None,
-    )
+    predicate = lambda backend: backend['name'] == name and backend['backend_host'] == host
+    return next(filter(predicate, backends), None)
 
 def get_payload(name, host):
     """Build payload to create or update API backend."""

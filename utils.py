@@ -56,6 +56,7 @@ def ensure_csv(filename):
 def load_table(filename, tablename, engine=None, infer_size=100, chunk_size=1000):
     engine = engine or sa.create_engine(config.SQLA_URI)
     file = ensure_csv(filename)
+    # Pass data types to iterator to ensure consistent types across chunks
     dtypes = pd.read_csv(file.name, nrows=infer_size).dtypes
     chunks = pd.read_csv(file.name, chunksize=chunk_size, iterator=True, dtype=dtypes)
     for idx, chunk in enumerate(chunks):
