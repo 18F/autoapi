@@ -1,7 +1,10 @@
 import os
+import logging
+import tempfile
 
 from flask import json
 import sqlalchemy as sa
+from csvkit import convert
 
 import pandas as pd
 from pandas.io.sql import SQLTable
@@ -12,6 +15,8 @@ from sandman.model.models import Model
 from sandman.model import activate as sandman_activate
 
 import config
+
+logger = logging.getLogger(__name__)
 
 def get_name(path):
     return os.path.splitext(os.path.split(path)[1])[0]
@@ -33,10 +38,26 @@ def to_sql(name, engine, frame, chunksize=None, **kwargs):
     table.create()
     table.insert(chunksize)
 
+def ensure_csv(filename):
+    """Ensure that `filename` is a CSV.
+
+    :param filename: Name of tabular file
+    :returns: File pointer to original or converted file
+    """
+    _, ext = os.path.splitext(filename)
+    if ext == '.csv':
+        return open(filename)
+    logger.info('Converting file {0} to CSV'.format(filename))
+    file = tempfile.NamedTemporaryFile('w')
+    format = convert.guess_format(filename)
+    file.write(convert.convert(filename, format))
+    return file
+
 def load_table(filename, tablename, engine=None, infer_size=100, chunk_size=1000):
     engine = engine or sa.create_engine(config.SQLA_URI)
-    dtypes = pd.read_csv(filename, nrows=infer_size).dtypes
-    chunks = pd.read_csv(filename, chunksize=chunk_size, iterator=True, dtype=dtypes)
+    file = ensure_csv(filename)
+    dtypes = pd.read_csv(file.name, nrows=infer_size).dtypes
+    chunks = pd.read_csv(file.name, chunksize=chunk_size, iterator=True, dtype=dtypes)
     for idx, chunk in enumerate(chunks):
         chunk.index += chunk_size * idx
         sql_engine = pandasSQL_builder(engine)
