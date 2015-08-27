@@ -1,6 +1,7 @@
 """Helpers for subscribing to S3 buckets."""
 import os
 import json
+import urllib
 import logging
 
 import boto3
@@ -92,11 +93,12 @@ class AwsWebhookView(MethodView):
         for record in message.get('Records', []):
             bucket = record['s3']['bucket']
             key = record['s3']['object']
-            name, ext = os.path.splitext(key['key'])
+            path = urllib.parse.unquote_plus(key['key'])
+            name, ext = os.path.splitext(path)
             if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
                 continue
             if record['eventName'].startswith('ObjectCreated'):
-                fetch_key(client, bucket['name'], key['key'])
+                fetch_key(client, bucket['name'], path)
             elif record['eventName'].startswith('ObjectRemoved'):
                 utils.drop_table(name, metadata=db.metadata, engine=db.engine)
 

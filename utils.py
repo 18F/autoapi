@@ -92,6 +92,7 @@ def index_table(tablename, case_insensitive=False, metadata=None, engine=None):
                 pass
 
 def drop_table(tablename, metadata=None, engine=None):
+    logger.info('Dropping table {0}'.format(tablename))
     metadata = metadata or sa.MetaData()
     engine = engine or sa.create_engine(config.SQLA_URI)
     try:
