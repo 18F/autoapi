@@ -4,7 +4,7 @@ import tempfile
 
 from flask import json
 import sqlalchemy as sa
-from csvkit import convert
+from csvkit.utilities.in2csv import In2CSV
 
 import pandas as pd
 from pandas.io.sql import SQLTable
@@ -49,8 +49,10 @@ def ensure_csv(filename):
         return open(filename)
     logger.info('Converting file {0} to CSV'.format(filename))
     file = tempfile.NamedTemporaryFile('w')
-    format = convert.guess_format(filename)
-    file.write(convert.convert(filename, format))
+    converter = In2CSV()
+    converter.args.input_path = filename
+    converter.output_file = file
+    converter.main()
     return file
 
 def load_table(filename, tablename, engine=None, infer_size=100, chunk_size=1000):
