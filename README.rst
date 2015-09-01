@@ -25,6 +25,8 @@ By default, autoapi uses a local SQLite database. To specify a different databas
     cf create-service rds shared-psql autoapi-rds
     cf bind-service autoapi autoapi-rds
 
+For details on RDS services available through 18F Cloud Foundry, see https://docs.18f.gov/apps/databases/.
+
 Example Implementation 
 ----------------------
 
