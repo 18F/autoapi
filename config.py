@@ -17,6 +17,10 @@ API_NAME = os.environ.get('AUTOAPI_NAME')
 BUCKET_NAME = os.environ.get('AUTOAPI_BUCKET')
 CASE_INSENSITIVE = parse_bool(os.environ.get('AUTOAPI_CASE_INSENSITIVE', True))
 SQLA_URI = os.getenv(
-    'AUTOAPI_SQLA_URI',
-    ''.join(['sqlite:///', os.path.dirname(__file__), '/autoapi.sqlite']),
+    'DATABASE_URL',
+    ''.join([
+        'sqlite:///',
+        os.path.dirname(__file__),
+        '/autoapi.sqlite'
+    ]),
 )

@@ -15,6 +15,16 @@ Quickstart
     curl http://localhost:5000/sample/1
     curl http://localhost:5000/sample?LastName=SMITH
 
+Database Configuration
+----------------------
+
+By default, autoapi uses a local SQLite database. To specify a different database URI, set the `DATABASE_URL` environment variable. For use with Cloud Foundry, simply create and bind an RDS service; this will automatically configure the environment.
+
+::
+
+    cf create-service rds shared-psql autoapi-rds
+    cf bind-service autoapi autoapi-rds
+
 Example Implementation 
 ----------------------
 
