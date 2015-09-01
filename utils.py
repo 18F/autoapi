@@ -86,11 +86,11 @@ def index_table(tablename, case_insensitive=False, metadata=None, engine=None):
         for index in indexes:
             try:
                 index.drop(engine)
-            except sa.exc.OperationalError:
+            except sa.exc.DatabaseError:
                 pass
             try:
                 index.create(engine)
-            except sa.exc.OperationalError:
+            except sa.exc.DatabaseError:
                 pass
 
 def drop_table(tablename, metadata=None, engine=None):
