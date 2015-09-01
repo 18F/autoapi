@@ -10,6 +10,7 @@ from werkzeug.wsgi import DispatcherMiddleware
 import aws
 import utils
 import config
+import swagger
 
 def make_app():
     app = sandman2.get_app(config.SQLA_URI)
@@ -34,8 +35,11 @@ def make_app():
             if not basic_auth.authenticate():
                 return basic_auth.challenge()
 
-    blueprint = aws.make_blueprint()
-    app.register_blueprint(blueprint)
+    aws_blueprint = aws.make_blueprint()
+    app.register_blueprint(aws_blueprint)
+
+    docs_blueprint = swagger.make_blueprint(app)
+    app.register_blueprint(docs_blueprint)
 
     route = os.path.join('/api-program', config.API_NAME)
     container = DispatcherMiddleware(app.wsgi_app, {route: app})
