@@ -2,17 +2,15 @@ import os
 import logging
 import tempfile
 
-from flask import json
+import sandman2
 import sqlalchemy as sa
+from flask import json, current_app
 from csvkit.utilities.in2csv import In2CSV
 
 import pandas as pd
 from pandas.io.sql import SQLTable
 from pandas.io.sql import pandasSQL_builder
 
-from sandman import db
-from sandman.model.models import Model
-from sandman.model import activate as sandman_activate
 
 import config
 
@@ -21,17 +19,11 @@ logger = logging.getLogger(__name__)
 def get_name(path):
     return os.path.splitext(os.path.split(path)[1])[0]
 
-class ReadOnlyModel(Model):
-    __methods__ = ('GET', )
-
 class APIJSONEncoder(json.JSONEncoder):
     def default(self, o):
         if hasattr(o, 'isoformat'):
             return o.isoformat()
         return super(APIJSONEncoder, self).default(o)
-
-def activate(*args, base=ReadOnlyModel, browser=False, admin=False, reflect_all=True):
-    sandman_activate(base=base, browser=browser, admin=admin, reflect_all=reflect_all)
 
 def to_sql(name, engine, frame, chunksize=None, **kwargs):
     table = SQLTable(name, engine, frame=frame, **kwargs)
@@ -106,9 +98,26 @@ def drop_table(tablename, metadata=None, engine=None):
 
 def get_tables(engine=None):
     engine = engine or sa.create_engine(config.SQLA_URI)
-    inspector = sa.engine.reflection.Inspector.from_engine(db.engine)
+    inspector = sa.engine.reflection.Inspector.from_engine(sandman2.db.engine)
     return set(inspector.get_table_names())
 
 def refresh_tables():
-    db.metadata.clear()
+    sandman2.db.metadata.clear()
     activate()
+
+def activate():
+    rules = [
+        rule for rule in current_app.url_map._rules
+        if is_service_rule(rule, current_app)
+    ]
+    for rule in rules:
+        current_app.url_map._rules.remove(rule)
+        current_app.url_map._rules_by_endpoint.pop(rule.endpoint, None)
+        current_app.view_functions.pop(rule.endpoint, None)
+    sandman2.AutomapModel.classes.clear()
+    sandman2.AutomapModel.metadata.clear()
+    sandman2._reflect_all()
+
+def is_service_rule(rule, app):
+    view = current_app.view_functions[rule.endpoint]
+    return hasattr(view, 'view_class') and issubclass(view.view_class, sandman2.Service)

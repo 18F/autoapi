@@ -8,4 +8,5 @@ gunicorn>=19.3.0
 cryptography>=1.0
 Flask-Cors>=2.1.0
 Flask-BasicAuth>=0.2.0
-git+https://github.com/jmcarp/sandman@develop
+
+git+https://github.com/jmcarp/sandman2@develop

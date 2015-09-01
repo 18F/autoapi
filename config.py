@@ -19,7 +19,7 @@ CASE_INSENSITIVE = parse_bool(os.environ.get('AUTOAPI_CASE_INSENSITIVE', True))
 SQLA_URI = os.getenv(
     'DATABASE_URL',
     ''.join([
-        'sqlite:///',
+        'sqlite+pysqlite:///',
         os.path.dirname(__file__),
         '/autoapi.sqlite'
     ]),
