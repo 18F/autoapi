@@ -14,10 +14,12 @@ from marshmallow_sqlalchemy import ModelSchema
 
 from sandman2.model import db
 
+import config
+
 def make_spec(app):
     spec = APISpec(
         version='1.0',
-        title='sandman2',
+        title=config.API_NAME,
         produces=['application/json'],
         plugins=['smore.ext.marshmallow'],
     )
@@ -59,10 +61,25 @@ def register_rule(spec, service, schema, rule):
         }
     spec.add_path(path=path, operations=operations, view=view)
 
+method_codes = {
+    'get': [200],
+    'post': [201, 204],
+    'put': [200, 201],
+    'patch': [200],
+    'delete': [204],
+}
+
 def make_resource_response(spec, schema, method):
-    if method == 'delete':
-        return {204: {'description': ''}}
-    return {200: {'schema': schema, 'description': ''}}
+    return {
+        code: make_code_response(schema, code)
+        for code in method_codes[method]
+    }
+
+def make_code_response(schema, code):
+    ret = {'description': ''}
+    if code != 204:
+        ret['schema'] = schema
+    return ret
 
 RE_URL = re.compile(r'<(?:[^:<>]+:)?([^<>]+)>')
 def extract_path(path):
@@ -95,7 +112,10 @@ def make_schema(model, session):
 
 class PageInfoSchema(ma.Schema):
     class Meta:
-        fields = ('page', 'count', 'pages', 'per_page')
+        page = ma.fields.Int()
+        count = ma.fields.Int()
+        pages = ma.fields.Int()
+        per_page = ma.fields.Int()
 
 def make_page_schema(schema):
     model_name = schema.Meta.model.__name__.capitalize()
