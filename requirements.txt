@@ -8,7 +8,8 @@ gunicorn>=19.3.0
 cryptography>=1.0
 Flask-Cors>=2.1.0
 Flask-BasicAuth>=0.2.0
-marshmallow-sqlalchemy>=0.3.0
+marshmallow>=2.0.0.b4
+marshmallow-sqlalchemy>=0.4.0
 
 git+https://github.com/jmcarp/sandman2@dev
 git+https://github.com/marshmallow-code/smore@dev

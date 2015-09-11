@@ -3,7 +3,11 @@ import logging
 import tempfile
 
 import sandman2
+from sandman2 import model
+
 import sqlalchemy as sa
+from sqlalchemy.ext.automap import automap_base
+
 from flask import json, current_app
 from csvkit.utilities.in2csv import In2CSV
 
@@ -11,8 +15,8 @@ import pandas as pd
 from pandas.io.sql import SQLTable
 from pandas.io.sql import pandasSQL_builder
 
-
 import config
+import swagger
 
 logger = logging.getLogger(__name__)
 
@@ -24,6 +28,12 @@ class APIJSONEncoder(json.JSONEncoder):
         if hasattr(o, 'isoformat'):
             return o.isoformat()
         return super(APIJSONEncoder, self).default(o)
+
+class Base(model.Model, model.db.Model):
+    __abstract__ = True
+    __methods__ = {'GET'}
+
+AutomapModel = automap_base(cls=(Base, ))
 
 def to_sql(name, engine, frame, chunksize=None, **kwargs):
     table = SQLTable(name, engine, frame=frame, **kwargs)
@@ -94,7 +104,6 @@ def drop_table(tablename, metadata=None, engine=None):
         table.drop(engine)
     except sa.exc.NoSuchTableError:
         pass
-    refresh_tables()
 
 def get_tables(engine=None):
     engine = engine or sa.create_engine(config.SQLA_URI)
@@ -106,17 +115,19 @@ def refresh_tables():
     activate()
 
 def activate():
-    rules = [
-        rule for rule in current_app.url_map._rules
-        if is_service_rule(rule, current_app)
-    ]
-    for rule in rules:
-        current_app.url_map._rules.remove(rule)
-        current_app.url_map._rules_by_endpoint.pop(rule.endpoint, None)
-        current_app.view_functions.pop(rule.endpoint, None)
-    sandman2.AutomapModel.classes.clear()
-    sandman2.AutomapModel.metadata.clear()
-    sandman2._reflect_all()
+    with current_app.app_context():
+        rules = [
+            rule for rule in current_app.url_map._rules
+            if is_service_rule(rule, current_app)
+        ]
+        for rule in rules:
+            current_app.url_map._rules.remove(rule)
+            current_app.url_map._rules_by_endpoint.pop(rule.endpoint, None)
+            current_app.view_functions.pop(rule.endpoint, None)
+        sandman2.AutomapModel.classes.clear()
+        sandman2.AutomapModel.metadata.clear()
+        sandman2._reflect_all(Base=AutomapModel)
+        current_app.__spec__ = swagger.make_spec(current_app)
 
 def is_service_rule(rule, app):
     view = current_app.view_functions[rule.endpoint]

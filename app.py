@@ -13,7 +13,7 @@ import config
 import swagger
 
 def make_app():
-    app = sandman2.get_app(config.SQLA_URI)
+    app = sandman2.get_app(config.SQLA_URI, Base=utils.AutomapModel)
     app.json_encoder = utils.APIJSONEncoder
     app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')

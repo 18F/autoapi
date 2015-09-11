@@ -12,8 +12,6 @@ from smore.apispec import APISpec
 import marshmallow as ma
 from marshmallow_sqlalchemy import ModelSchema
 
-from sandman2.model import db
-
 import config
 
 def make_spec(app):
@@ -22,13 +20,17 @@ def make_spec(app):
         title=config.API_NAME,
         produces=['application/json'],
         plugins=['smore.ext.marshmallow'],
+        tags=[
+            {'name': each.__model__.__name__.lower()}
+            for each in getattr(app, '__services__', set())
+        ],
     )
     for service in getattr(app, '__services__', set()):
         register_service(app, spec, service)
     return spec
 
 def register_service(app, spec, service):
-    schema = make_schema(service.__model__, db.session)
+    schema = make_schema(service.__model__)
     page_schema = make_page_schema(schema)
     register_schemas(spec, schema, page_schema)
     register_rules(app, spec, service, schema, page_schema)
@@ -105,9 +107,9 @@ def get_resource_type(service, schema):
         return {'type': type, 'format': format}
     return {'type': type}
 
-def make_schema(model, session):
+def make_schema(model):
     name = '{0}Schema'.format(model.__name__.capitalize())
-    Meta = make_meta(model=model, sqla_session=session)
+    Meta = make_meta(model=model)
     return type(name, (ModelSchema, ), {'Meta': Meta})
 
 class PageInfoSchema(ma.Schema):
@@ -141,7 +143,7 @@ def make_blueprint(app):
         static_folder=os.path.join(here, 'node_modules', 'swagger-ui', 'dist'),
         static_url_path='/docs/static',
     )
-    spec = make_spec(app)
+    app.__spec__ = make_spec(app)
 
     @blueprint.add_app_template_global
     def swagger_static(filename):
@@ -149,11 +151,7 @@ def make_blueprint(app):
 
     @blueprint.route('/swagger/')
     def swagger_json():
-        spec.info['tags'] = [
-            {'name': each.__model__.__name__.lower()}
-            for each in app.__services__
-        ]
-        return jsonify(spec.to_dict())
+        return jsonify(app.__spec__.to_dict())
 
     @blueprint.route('/swagger-ui/')
     def swagger_ui():

@@ -8,7 +8,7 @@ import boto3
 import requests
 import csvkit.convert
 
-from sandman import db
+from sandman2.model import db
 
 from flask.views import MethodView
 from flask import request, jsonify, Blueprint
