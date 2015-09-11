@@ -31,7 +31,7 @@ def subscribe(bucket, region='us-east-1'):
     client.subscribe(
         TopicArn=topic.arn,
         Protocol='https',
-        Endpoint='https://autoapi.18f.gov/webhook/',
+        Endpoint=urllib.parse.urljoin(config.BASE_URL, 'webhook/'),
     )
 
 def get_topic(sns, client):
