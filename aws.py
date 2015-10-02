@@ -95,6 +95,7 @@ class AwsWebhookView(MethodView):
             key = record['s3']['object']
             path = urllib.parse.unquote_plus(key['key'])
             name, ext = os.path.splitext(path)
+            name = name.replace('/', '-')
             if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
                 continue
             if record['eventName'].startswith('ObjectCreated'):
@@ -116,7 +117,7 @@ def fetch_bucket(bucket_name=None):
         fetch_key(client, bucket.name, key.key)
 
 def fetch_key(client, bucket, key):
-    filename = os.path.join('raw', key)
+    filename = os.path.join('raw', key.replace('/', '-'))
     client.download_file(bucket, key, filename)
     try:
         tasks.apify(filename)
