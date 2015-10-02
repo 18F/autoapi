@@ -29,11 +29,10 @@ class APIJSONEncoder(json.JSONEncoder):
             return o.isoformat()
         return super(APIJSONEncoder, self).default(o)
 
-class Base(model.Model, model.db.Model):
-    __abstract__ = True
+class Base(model.Model):
     __methods__ = {'GET'}
 
-AutomapModel = automap_base(cls=(Base, ))
+AutomapModel = automap_base(cls=(Base, model.db.Model))
 
 def to_sql(name, engine, frame, chunksize=None, **kwargs):
     table = SQLTable(name, engine, frame=frame, **kwargs)

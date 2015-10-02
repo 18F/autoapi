@@ -4,7 +4,7 @@ import os
 import re
 
 from werkzeug.routing import parse_rule
-from flask import Blueprint, jsonify, render_template, url_for
+from flask import Blueprint, jsonify, render_template, url_for, redirect
 
 from smore import swagger
 from smore.apispec import APISpec
@@ -156,5 +156,9 @@ def make_blueprint(app):
     @blueprint.route('/swagger-ui/')
     def swagger_ui():
         return render_template('swagger-ui.html', specs_url=url_for('docs.swagger_json'))
+
+    @blueprint.route('/')
+    def index():
+        return redirect(url_for('docs.swagger_ui'))
 
     return blueprint
