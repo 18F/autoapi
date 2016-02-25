@@ -1,3 +1,26 @@
+Summary
+-------
+
+AutoAPI is a very simple, very scalable API engine that converts flat data files into a web service.  To add, edit, and remove data from the API, you just add, overwrite, or delete flat files from an s3 bucket.  
+
+Example Instance
+----------------
+
+* https://autoapi.18f.gov/
+* https://autoapi2.18f.gov
+
+How to use:
+
+* To see json, you can `curl https://autoapi.18f.gov`
+* You can also use an API viewer like [Postman for Chrome](https://chrome.google.com/webstore/detail/postman/fhbjgbiflinjbdggehcddcbncdddomop?hl=en)
+
+Query Parameters:  
+
+* ?page=2
+* ?[columnheader]=[value]
+
+
+
 Quickstart
 ----------
 
@@ -32,7 +55,7 @@ Example Implementation
 
 * https://autoapi.18f.gov/
 * if you want to see json, you can `curl https://autoapi.18f.gov`
-* https://autoapi.18f.gov/admin - `api-program` / `all-the-things`
+* https://autoapi.18f.gov/admin 
 
 AWS Integration
 ---------------
