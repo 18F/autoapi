@@ -18,6 +18,7 @@ import tasks
 import utils
 import config
 import signing
+import cfenv
 
 logger = logging.getLogger(__name__)
 
@@ -102,13 +103,32 @@ class AwsWebhookView(MethodView):
             elif record['eventName'].startswith('ObjectRemoved'):
                 utils.drop_table(name, metadata=db.metadata, engine=db.engine)
 
+def cf_bucket():
+    env = cfenv.AppEnv()
+    if env.app:
+        try:
+            session = boto3.Session(
+                aws_access_key_id=env.get_credential('access_key_id'),
+                aws_secret_access_key=env.get_credential('secret_access_key'),
+            )
+            s3 = session.resource('s3')
+            return s3.Bucket(env.get_credential('bucket'))
+        except Exception as e:
+            logger.error(e)
+
 def fetch_bucket(bucket_name=None):
-    bucket_name = bucket_name or config.BUCKET_NAME
-    logger.info('Importing bucket {0}'.format(bucket_name))
-    aws.subscribe(bucket_name)
-    s3 = boto3.resource('s3')
-    client = boto3.client('s3')
-    bucket = s3.Bucket(bucket_name)
+    bucket = cf_bucket()
+    if bucket:
+        logger.info('Using bound bucket {0}'.format(bucket))
+        logger.info('bucket name {0}'.format(bucket.name))
+        # aws.subscribe(bucket.name)  
+    else:
+        bucket_name = bucket_name or config.BUCKET_NAME
+        logger.info('Importing bucket {0}'.format(bucket_name))
+        aws.subscribe(bucket_name)
+        s3 = boto3.resource('s3')
+        client = boto3.client('s3')
+        bucket = s3.Bucket(bucket_name)
     for key in bucket.objects.all():
         name, ext = os.path.splitext(key.key)
         if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
