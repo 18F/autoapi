@@ -112,16 +112,18 @@ def cf_bucket():
                 aws_secret_access_key=env.get_credential('secret_access_key'),
             )
             s3 = session.resource('s3')
-            return s3.Bucket(env.get_credential('bucket'))
+            client = session.client('s3')
+            return (client, s3.Bucket(env.get_credential('bucket')))
         except Exception as e:
             logger.error(e)
+    return (None, None)
 
 def fetch_bucket(bucket_name=None):
-    bucket = cf_bucket()
+    (client, bucket) = cf_bucket()
     if bucket:
         logger.info('Using bound bucket {0}'.format(bucket))
         logger.info('bucket name {0}'.format(bucket.name))
-        # aws.subscribe(bucket.name)  
+        # aws.subscribe(bucket.name)
     else:
         bucket_name = bucket_name or config.BUCKET_NAME
         logger.info('Importing bucket {0}'.format(bucket_name))
