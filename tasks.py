@@ -5,6 +5,7 @@ from invoke import task, run
 import aws
 import utils
 import config
+import app
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -28,3 +29,7 @@ def apify(filename, tablename=None):
 @task
 def fetch_bucket(bucket_name=None):
     aws.fetch_bucket(bucket_name)
+
+@task
+def serve():
+    app.flask_app().run()

@@ -11,7 +11,7 @@ import aws
 import utils
 import config
 
-def make_app():
+def flask_app():
     app.json_encoder = utils.APIJSONEncoder
     app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
     app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
@@ -39,8 +39,10 @@ def make_app():
     app.register_blueprint(blueprint)
 
     utils.activate(admin=True)
+    return app
 
+def make_app():
+    app = flask_app()
     route = os.path.join('/api-program', config.API_NAME)
     container = DispatcherMiddleware(app.wsgi_app, {route: app})
-
     return container

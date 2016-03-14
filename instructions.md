@@ -2,7 +2,6 @@
 Get this code  
 =============
 
-
 1. [clone this repository]()
 
 1. `cd autoapi`
@@ -10,6 +9,18 @@ Get this code
 1. Follow directions below to run either locally or from cloud.gov.
 
 1. `set AUTOAPI_NAME=(an identifier for your API)`
+
+To get S3 credentials
+=====================
+
+Only necessary if you want to use an AWS S3 bucket you set up yourself -
+not to serve from local files, or from an S3 bucket set up through
+cloud.gov.
+
+1. In [Identity and Access Management](https://console.aws.amazon.com/iam),
+create a user and assign a policy like "AmazonS3ReadOnlyAccess" to it.
+
+1. For that user, create an access key and download its credentials.
 
 To run locally
 ==============
@@ -20,9 +31,20 @@ To run locally
   1. create an "autoapi" `virtualenv`
   1. activate the autoapi virtualenv in your session, and use that session for the remainder of these steps.
 
-1. `pip install -r requirements.txt`
+1. By default, relational forms of your spreadsheets will be stored in an
+`autoapi.sqlite` SQLite3 database file (you can change this in `config.py`).
+You can populate this database from your spreadsheets by either:
 
-TODO
+  a. Importing spreadsheets you have local access to with `invoke apify <file_name>`
+  a. Importing spreadsheets from an S3 bucket:
+
+    - Get access credentials for your bucket (see above).
+    - Use those credentials to set environment variables: `export AWS_ACCESS_KEY_ID=(something)`, `export AWS_SECRET_ACCESS_KEY=(something)`
+    - `invoke fetch_bucket`
+
+1. Choose a name and set it as an environment variable: `export AUTOAPI_NAME=(something)`
+
+1. `invoke serve`
 
 To run from cloud.gov
 =====================
@@ -46,10 +68,7 @@ cf bind-service $CF_APP_NAME ${CF_APP_NAME}-db```
 To use your own S3 bucket
 -------------------------
 
-1. In [Identity and Access Management](https://console.aws.amazon.com/iam),
-create a user and assign a policy like "AmazonS3ReadOnlyAccess" to it.
-
-1. For that user, create an access key and download its credentials.
+1. Get your S3 credentials (see above)
 
 1. Set environment variables on your app to
 ```cf set-env $CF_APP_NAME ACCESS_KEY_ID (Access Key ID from IAM user)
