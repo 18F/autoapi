@@ -56,7 +56,7 @@ To run from cloud.gov
   3. `cf login`
   4. `cf target -o (your organization) -s (your workspace)`
 
-1. Choose a unique name for your application and `set` the `CF_APP_NAME` environment variable to it: `set CF_APP_NAME=sample-autoapi-app`
+1. Choose a unique name for your application and `set` the `CF_APP_NAME` environment variable to it: `export CF_APP_NAME=sample-autoapi-app`
 
 1. Push the app to cloud.gov, and bind a database service to it:
 
@@ -91,7 +91,7 @@ cf bind-service ${CF_APP_NAME} ${CF_APP_NAME}-s3
 Finally
 -------
 
-1. `cf restage`
+1. `cf restage $CF_APP_NAME`
 
 1. Visit https://
 

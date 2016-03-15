@@ -1,6 +1,7 @@
 import os
 
 from sandman import app
+from flask import Flask
 
 from flask import request
 from flask.ext.cors import CORS
@@ -10,6 +11,12 @@ from werkzeug.wsgi import DispatcherMiddleware
 import aws
 import utils
 import config
+
+def refresh_tables():
+    tables = utils.get_tables()
+    if tables != app.config['SQLALCHEMY_TABLES']:
+        utils.refresh_tables()
+        app.config['SQLALCHEMY_TABLES'] = tables
 
 def flask_app():
     app.json_encoder = utils.APIJSONEncoder
@@ -41,8 +48,17 @@ def flask_app():
     utils.activate(admin=True)
     return app
 
+data_refresh_request_listener_app = Flask('data_refresh_request_listener')
+
+@data_refresh_request_listener_app.route('/')
+def index():
+    print('Refresh requested!')
+    return 'Refresh requested!'
+
 def make_app():
     app = flask_app()
+    date_refresh_request_listener_app = data_refresh_request_listener_app()
     route = os.path.join('/api-program', config.API_NAME)
-    container = DispatcherMiddleware(app.wsgi_app, {route: app})
+    container = DispatcherMiddleware(app.wsgi_app, {route: app,
+      '/refresh': data_refresh_request_listener_app })
     return container
