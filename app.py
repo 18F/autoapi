@@ -13,10 +13,10 @@ import utils
 import config
 
 def refresh_tables():
+    utils.refresh_tables()
     tables = utils.get_tables()
-    if tables != app.config['SQLALCHEMY_TABLES']:
-        utils.refresh_tables()
-        app.config['SQLALCHEMY_TABLES'] = tables
+    app.config['SQLALCHEMY_TABLES'] = tables
+    print('refresh_tables run')
 
 def flask_app():
     app.json_encoder = utils.APIJSONEncoder
@@ -53,11 +53,11 @@ data_refresh_request_listener_app = Flask('data_refresh_request_listener')
 @data_refresh_request_listener_app.route('/')
 def index():
     print('Refresh requested!')
+    refresh_tables()
     return 'Refresh requested!'
 
 def make_app():
     app = flask_app()
-    date_refresh_request_listener_app = data_refresh_request_listener_app()
     route = os.path.join('/api-program', config.API_NAME)
     container = DispatcherMiddleware(app.wsgi_app, {route: app,
       '/refresh': data_refresh_request_listener_app })
