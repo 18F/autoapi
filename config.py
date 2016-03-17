@@ -13,13 +13,14 @@ def parse_bool(value, default=False):
     logger.warn('Value "{0}" cannot be coerced to boolean'.format(value))
     return default
 
-API_NAME = os.environ.get('AUTOAPI_NAME')
 BUCKET_NAME = os.environ.get('AUTOAPI_BUCKET')
+API_NAME = os.environ.get('AUTOAPI_NAME', 'autoapi')
+BASE_URL = os.environ.get('AUTOAPI_BASE_URL', 'https://autoapi.18f.gov')
 CASE_INSENSITIVE = parse_bool(os.environ.get('AUTOAPI_CASE_INSENSITIVE', True))
 SQLA_URI = os.getenv(
     'DATABASE_URL',
     ''.join([
-        'sqlite:///',
+        'sqlite+pysqlite:///',
         os.path.dirname(__file__),
         '/autoapi.sqlite'
     ]),

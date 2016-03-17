@@ -23,7 +23,7 @@ your files and API server will 'live'.
     </td>
     <td>
       <ol>
-        <li>Set up <a href="#python-environment">Python environment</a></li>
+        <li>Set up <a href="#local-environment">local environment</a></li>
         <li><code>invoke apify my_table.csv</code>li>                      
         <li><code>invoke serve</code>li>                                   
       </ol>
@@ -38,9 +38,10 @@ your files and API server will 'live'.
     </td>
     <td>
       <ol>
-        <li>Set up <a href="#python-environment">Python environment</a></li>
+        <li>Set up <a href="#local-environment">local environment</a></li>
         <li><a href="#s3-credentials">Get S3 credentials</a></li>
         <li><a href="#set-local-env">Set environment with S3 credentials</a></li>
+        <li><code>invoke fetch_bucket $AUTOAPI_BUCKET</code></li>
         <li><code>invoke serve</code>li>
       </ol>
     </td>
@@ -87,15 +88,21 @@ Instruction details
 
 <div id="python-environment"></div>
 
-Set up local Python environment
--------------------------------
+Set up local environment
+------------------------
 
-  1. Follow [these instructions]() to
+1. Follow [these instructions]() to
 
-    a. install `virtualenv`
-    a. create a `virtualenv`
-    a. activate the virtualenv in your session, and use that session for the remainder of these steps.
-    a. `pip install -r requirements.txt`
+  a. install `virtualenv`
+  a. create a `virtualenv`
+  a. activate the virtualenv in your session, and use that session for the remainder of these steps.
+  a. `pip install -r requirements.txt`
+
+2. Install Swagger static assets:
+
+    npm install
+    npm install gulp
+    gulp
 
 <div id="s3-credentials"></div>
 

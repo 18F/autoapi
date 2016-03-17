@@ -32,4 +32,4 @@ def fetch_bucket(bucket_name=None):
 
 @task
 def serve():
-    app.flask_app().run()
+    app.main_app().run()
