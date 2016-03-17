@@ -1,6 +1,6 @@
 import os
 
-from sandman import app
+import sandman2
 
 from flask import request
 from flask.ext.cors import CORS
@@ -10,11 +10,12 @@ from werkzeug.wsgi import DispatcherMiddleware
 import aws
 import utils
 import config
+import swagger
 
 def make_app():
+    app = sandman2.get_app(config.SQLA_URI, Base=utils.AutomapModel)
     app.json_encoder = utils.APIJSONEncoder
     app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
-    app.config['SQLALCHEMY_DATABASE_URI'] = config.SQLA_URI
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
     app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
 
@@ -27,7 +28,6 @@ def make_app():
         if tables != app.config['SQLALCHEMY_TABLES']:
             utils.refresh_tables()
             app.config['SQLALCHEMY_TABLES'] = tables
-    app.config['SQLALCHEMY_TABLES'] = utils.get_tables()
 
     @app.before_request
     def protect_admin():
@@ -35,12 +35,17 @@ def make_app():
             if not basic_auth.authenticate():
                 return basic_auth.challenge()
 
-    blueprint = aws.make_blueprint()
-    app.register_blueprint(blueprint)
+    aws_blueprint = aws.make_blueprint()
+    app.register_blueprint(aws_blueprint)
 
-    utils.activate(admin=True)
+    docs_blueprint = swagger.make_blueprint(app)
+    app.register_blueprint(docs_blueprint)
 
     route = os.path.join('/api-program', config.API_NAME)
     container = DispatcherMiddleware(app.wsgi_app, {route: app})
 
-    return container
+    with app.app_context():
+        app.config['SQLALCHEMY_TABLES'] = utils.get_tables()
+        utils.activate()
+
+    return app, container
