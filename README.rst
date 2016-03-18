@@ -18,6 +18,8 @@ Query Parameters:
 
 * ?page=2
 * ?[columnheader]=[value]
+* ?[columnheader1]=[value1]&[columnheader1]=[value2]  (returns results that have value1 OR value2)
+* ?[columnheader1]=[value1]&[columnheader3]=[value4]  (returns results that have both value1 and value2)
 
 
 
