@@ -3,6 +3,7 @@ import os
 import sandman2
 
 from flask import Flask, request
+from flask.views import View
 from flask.ext.cors import CORS
 from flask.ext.basicauth import BasicAuth
 from werkzeug.wsgi import DispatcherMiddleware
@@ -40,6 +41,14 @@ def main_app():
         if request.path.startswith('/admin/'):
             if not basic_auth.authenticate():
                 return basic_auth.challenge()
+
+    class RefreshTables(View):
+        def dispatch_request(self):
+            aws.fetch_bucket()
+            utils.refresh_tables()
+            return 'Tables refreshed.'
+
+    app.add_url_rule('/refresh/', view_func=RefreshTables.as_view('refresh'))
 
     aws_blueprint = aws.make_blueprint()
     app.register_blueprint(aws_blueprint)

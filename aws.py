@@ -128,7 +128,7 @@ def fetch_bucket(bucket_name=None):
     else:
         bucket_name = bucket_name or config.BUCKET_NAME
         logger.info('Importing bucket {0}'.format(bucket_name))
-        aws.subscribe(bucket_name)
+        # aws.subscribe(bucket_name) lacking permissions
         s3 = boto3.resource('s3')
         client = boto3.client('s3')
         bucket = s3.Bucket(bucket_name)
