@@ -1,4 +1,6 @@
 import os
+import threading
+import multiprocessing
 import logging
 import tempfile
 
@@ -17,6 +19,7 @@ from pandas.io.sql import pandasSQL_builder
 
 import config
 import swagger
+from refresh_log import AutoapiTableRefreshLog
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +58,19 @@ def ensure_csv(filename):
     converter.output_file = file
     converter.main()
     return file
+
+def clear_tables(metadata=None, engine=None):
+    metadata = metadata or sa.MetaData()
+    if not metadata.bind:
+        metadata.bind = engine or sa.create_engine(config.SQLA_URI)
+    metadata.reflect()
+    clearable = [m[1] for m in metadata.tables.items() if m[0] != AutoapiTableRefreshLog.__tablename__]
+    logger.info('{} clearable tables'.format(len(clearable)))
+    try:
+        metadata.drop_all(tables=clearable)
+    except Exception as e:
+        logger.info('drop error: {}'.format(str(e)))
+    logger.info('all clearables dropped')
 
 def load_table(filename, tablename, engine=None, infer_size=100, chunk_size=1000):
     engine = engine or sa.create_engine(config.SQLA_URI)
@@ -127,6 +143,8 @@ def activate():
         sandman2.AutomapModel.metadata.clear()
         sandman2._reflect_all(Base=AutomapModel)
         current_app.__spec__ = swagger.make_spec(current_app)
+        tables = get_tables()
+        current_app.config['SQLALCHEMY_TABLES'] = tables
 
 def is_service_rule(rule, app):
     view = current_app.view_functions[rule.endpoint]

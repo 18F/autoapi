@@ -14,8 +14,6 @@ from marshmallow_sqlalchemy import ModelSchema
 
 import config
 
-DEMO_KEY = 'DEMO_KEY1'
-
 def make_spec(app):
     spec = APISpec(
         version='1.0',
@@ -26,8 +24,8 @@ def make_spec(app):
             {'name': each.__model__.__name__.lower()}
             for each in getattr(app, '__services__', set())
         ],
-        host='api.18f.gov',
-        basePath='/sec',
+        host=config.API_HOST,
+        basePath=config.API_BASE_PATH,
     )
     for service in getattr(app, '__services__', set()):
         register_service(app, spec, service)
@@ -71,7 +69,7 @@ def register_rule(spec, service, schema, rule):
             'description': 'API Key',
             'required': True,
             'type': 'string',
-            'default': DEMO_KEY,
+            'default': config.DEMO_KEY,
         })
     spec.add_path(path=path, operations=operations, view=view)
 

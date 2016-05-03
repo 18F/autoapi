@@ -132,6 +132,8 @@ def fetch_bucket(bucket_name=None):
         s3 = boto3.resource('s3')
         client = boto3.client('s3')
         bucket = s3.Bucket(bucket_name)
+    utils.clear_tables()
+    # ??  TODO: determine necessity
     for key in bucket.objects.all():
         name, ext = os.path.splitext(key.key)
         if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
@@ -140,7 +142,10 @@ def fetch_bucket(bucket_name=None):
 
 def fetch_key(client, bucket, key):
     filename = os.path.join('raw', key.replace('/', '-'))
+    os.makedirs('raw', exist_ok=True)
+    logger.info('Downloading file {}'.format(filename))
     client.download_file(bucket, key, filename)
+    logger.info('Downloaded')
     try:
         tasks.apify(filename)
     except Exception as error:

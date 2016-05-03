@@ -1,26 +1,24 @@
 import os
-
-import sandman2
+import subprocess
+from datetime import datetime
 
 from flask import Flask, request
-from flask.views import View
-from flask.ext.cors import CORS
 from flask.ext.basicauth import BasicAuth
-from werkzeug.wsgi import DispatcherMiddleware
+from flask.ext.cors import CORS
+from flask.views import View
 
 import aws
-import utils
 import config
+import sandman2
 import swagger
+import utils
+from refresh_log import AutoapiTableRefreshLog as RefreshLog
+from refresh_log import db as refresh_log_db
 
-def refresh_tables():
-    utils.refresh_tables()
-    tables = utils.get_tables()
-    app.config['SQLALCHEMY_TABLES'] = tables
-    print('refresh_tables run')
 
-def main_app():
+def make_app():
     app = sandman2.get_app(config.SQLA_URI, Base=utils.AutomapModel)
+
     app.json_encoder = utils.APIJSONEncoder
     app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
     app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
@@ -44,9 +42,19 @@ def main_app():
 
     class RefreshTables(View):
         def dispatch_request(self):
-            aws.fetch_bucket()
-            utils.refresh_tables()
-            return 'Tables refreshed.'
+            underway = RefreshLog.refresh_underway()
+            if underway:
+                return '''Refresh begun at {} still underway.
+
+                Now: {}; timeout set for {} seconds'''.format(
+                  underway.begun_at, datetime.now(),
+                  config.REFRESH_TIMEOUT_SECONDS)
+            try:
+                subprocess.Popen(['invoke', 'refresh'])
+            except Exception as e:
+                print('Problem with table refresh:')
+                print(e)
+            return 'Table refresh requested.'
 
     app.add_url_rule('/refresh/', view_func=RefreshTables.as_view('refresh'))
 
@@ -60,20 +68,7 @@ def main_app():
         app.config['SQLALCHEMY_TABLES'] = utils.get_tables()
         utils.activate()
 
+    refresh_log_db.init_app(app)
+    refresh_log_db.create_all(app=app)
+
     return app
-
-data_refresh_request_listener_app = Flask('data_refresh_request_listener')
-
-@data_refresh_request_listener_app.route('/')
-def index():
-    print('Refresh requested!')
-    refresh_tables()
-    return 'Refresh requested!'
-
-def make_app():
-    app = main_app()
-    route = os.path.join('/api-program', config.API_NAME)
-    container = DispatcherMiddleware(app.wsgi_app, {route: app,
-      '/refresh': data_refresh_request_listener_app })
-
-    return app, container

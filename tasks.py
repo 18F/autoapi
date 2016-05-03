@@ -3,9 +3,12 @@ import logging
 from invoke import task, run
 
 import aws
+from refresh_log import AutoapiTableRefreshLog as RefreshLog
+import refresh_log
 import utils
 import config
 import app
+import sqlalchemy as sa
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +24,11 @@ def requirements(upgrade=True):
 def apify(filename, tablename=None):
     tablename = tablename or utils.get_name(filename)
     logger.info('Importing {0} to table {1}'.format(filename, tablename))
-    utils.drop_table(tablename)
+    try:
+        utils.drop_table(tablename)
+    except sa.exc.OperationalError as e:
+        logger.warning('DROP TABLE {} failed, may not exist?'.format(tablename))
+        logger.warning(str(e))
     utils.load_table(filename, tablename)
     utils.index_table(tablename, config.CASE_INSENSITIVE)
     logger.info('Finished importing {0}'.format(filename))
@@ -32,4 +39,22 @@ def fetch_bucket(bucket_name=None):
 
 @task
 def serve():
-    app.main_app().run()
+    app.make_app().run(host='0.0.0.0')
+
+@task
+def refresh():
+    logger.info('Refresh invoked')
+    with app.make_app().app_context():
+        rlog = RefreshLog.start()
+        try:
+            aws.fetch_bucket()
+            logger.info('bucket fetched')
+            utils.refresh_tables()
+            logger.info('refresh complete')
+            refresh_log.stop(rlog.id)
+        except Exception as e:
+            refresh_log.stop(rlog.id, err_msg=str(e))
+
+@task
+def clear():
+    utils.clear_tables()
