@@ -1,17 +1,18 @@
 import logging
 
-from invoke import task, run
+import sqlalchemy as sa
+from invoke import run, task
 
+import app
 import aws
-from refresh_log import AutoapiTableRefreshLog as RefreshLog
+import config
 import refresh_log
 import utils
-import config
-import app
-import sqlalchemy as sa
+from refresh_log import AutoapiTableRefreshLog as RefreshLog
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
 
 @task
 def requirements(upgrade=True):
@@ -20,6 +21,7 @@ def requirements(upgrade=True):
         cmd += ' --upgrade'
     run(cmd)
 
+
 @task
 def apify(filename, tablename=None):
     tablename = tablename or utils.get_name(filename)
@@ -27,19 +29,23 @@ def apify(filename, tablename=None):
     try:
         utils.drop_table(tablename)
     except sa.exc.OperationalError as e:
-        logger.warning('DROP TABLE {} failed, may not exist?'.format(tablename))
+        logger.warning('DROP TABLE {} failed, may not exist?'.format(
+            tablename))
         logger.warning(str(e))
     utils.load_table(filename, tablename)
     utils.index_table(tablename, config.CASE_INSENSITIVE)
     logger.info('Finished importing {0}'.format(filename))
 
+
 @task
 def fetch_bucket(bucket_name=None):
     aws.fetch_bucket(bucket_name)
 
+
 @task
 def serve():
     app.make_app().run(host='0.0.0.0')
+
 
 @task
 def refresh():
@@ -54,6 +60,7 @@ def refresh():
             refresh_log.stop(rlog.id)
         except Exception as e:
             refresh_log.stop(rlog.id, err_msg=str(e))
+
 
 @task
 def clear():

@@ -1,12 +1,15 @@
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, MetaData, create_engine
 from datetime import datetime, timedelta
-from sqlalchemy.orm import sessionmaker
+
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import (Boolean, Column, DateTime, Integer, MetaData, String,
+                        create_engine)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
 import config
 
 db = SQLAlchemy()
+
 
 class AutoapiTableRefreshLog(db.Model):
     __tablename__ = 'autoapi_table_refresh_log'
@@ -30,7 +33,8 @@ class AutoapiTableRefreshLog(db.Model):
 
     @classmethod
     def stop_hung(cls):
-        cutoff_time = datetime.now() - timedelta(seconds=config.REFRESH_TIMEOUT_SECONDS)
+        cutoff_time = datetime.now() - timedelta(
+            seconds=config.REFRESH_TIMEOUT_SECONDS)
         for entry in db.session.query(cls).filter_by(complete=False) \
             .filter(cls.begun_at < cutoff_time):
             entry.err_msg = 'Ran too long, presumed dead'
@@ -40,7 +44,8 @@ class AutoapiTableRefreshLog(db.Model):
     @classmethod
     def refresh_underway(cls):
         cls.stop_hung()
-        return db.session.query(AutoapiTableRefreshLog).filter_by(complete=False).first()
+        return db.session.query(AutoapiTableRefreshLog).filter_by(
+            complete=False).first()
 
 
 def stop(id, err_msg=None):

@@ -14,6 +14,7 @@ endpoints = {
     'publish': os.path.join(base, 'config', 'publish'),
 }
 
+
 def make_backend(name, host):
     """Create or update API backend."""
     backend = get_backend(name, host)
@@ -29,12 +30,14 @@ def make_backend(name, host):
     response = requests.request(method, url, json=payload, headers=headers)
     publish_backend(backend if backend else response.json()['api'], version)
 
+
 def get_backend(name, host):
     """Get existing API backend matching name and host."""
     response = requests.get(endpoints['apis'], headers=headers)
     backends = response.json()['data']
     predicate = lambda backend: backend['name'] == name and backend['backend_host'] == host
     return next(filter(predicate, backends), None)
+
 
 def get_payload(name, host):
     """Build payload to create or update API backend."""
@@ -60,6 +63,7 @@ def get_payload(name, host):
             ],
         }
     }
+
 
 def publish_backend(payload, version):
     id = payload['id']

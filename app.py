@@ -21,8 +21,10 @@ def make_app():
 
     app.json_encoder = utils.APIJSONEncoder
     app.config['CASE_INSENSITIVE'] = config.CASE_INSENSITIVE
-    app.config['BASIC_AUTH_USERNAME'] = os.environ.get('AUTOAPI_ADMIN_USERNAME', '')
-    app.config['BASIC_AUTH_PASSWORD'] = os.environ.get('AUTOAPI_ADMIN_PASSWORD', '')
+    app.config['BASIC_AUTH_USERNAME'] = os.environ.get(
+        'AUTOAPI_ADMIN_USERNAME', '')
+    app.config['BASIC_AUTH_PASSWORD'] = os.environ.get(
+        'AUTOAPI_ADMIN_PASSWORD', '')
 
     CORS(app)
     basic_auth = BasicAuth(app)
@@ -47,8 +49,8 @@ def make_app():
                 return '''Refresh begun at {} still underway.
 
                 Now: {}; timeout set for {} seconds'''.format(
-                  underway.begun_at, datetime.now(),
-                  config.REFRESH_TIMEOUT_SECONDS)
+                    underway.begun_at, datetime.now(),
+                    config.REFRESH_TIMEOUT_SECONDS)
             try:
                 subprocess.Popen(['invoke', 'refresh'])
             except Exception as e:

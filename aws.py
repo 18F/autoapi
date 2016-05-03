@@ -1,51 +1,51 @@
 """Helpers for subscribing to S3 buckets."""
-import os
 import json
-import urllib
 import logging
+import os
+import urllib
 
 import boto3
-import requests
+import cfenv
 import csvkit.convert
-
-from sandman2.model import db
-
+import requests
+from flask import Blueprint, jsonify, request
 from flask.views import MethodView
-from flask import request, jsonify, Blueprint
 
 import aws
-import tasks
-import utils
 import config
 import signing
-import cfenv
+import tasks
+import utils
+from sandman2.model import db
 
 logger = logging.getLogger(__name__)
+
 
 def subscribe(bucket, region='us-east-1'):
     sns = boto3.resource('sns', region)
     client = boto3.client('sns', region)
     topic = get_topic(sns, client)
     policy = get_policy(topic.arn, bucket)
-    topic.set_attributes(AttributeName='Policy', AttributeValue=json.dumps(policy))
+    topic.set_attributes(AttributeName='Policy',
+                         AttributeValue=json.dumps(policy))
     notify(topic.arn, bucket)
     client.subscribe(
         TopicArn=topic.arn,
         Protocol='https',
-        Endpoint=urllib.parse.urljoin(config.BASE_URL, 'webhook/'),
-    )
+        Endpoint=urllib.parse.urljoin(config.BASE_URL, 'webhook/'), )
+
 
 def get_topic(sns, client):
     """Get or create SNS topic."""
     topic = next(
         (topic for topic in sns.topics.all() if topic.arn.endswith('autoapi')),
-        None,
-    )
+        None, )
     if topic is None:
         response = client.create_topic(Name='autoapi')
         topic = sns.Topic(response['TopicArn'])
         topic.reload()
     return topic
+
 
 def notify(arn, bucket):
     client = boto3.client('s3', 'us-east-1')
@@ -58,8 +58,8 @@ def notify(arn, bucket):
                     'Events': ['s3:ObjectCreated:*', 's3:ObjectRemoved:*'],
                 }
             ]
-        }
-    )
+        })
+
 
 def get_policy(arn, bucket):
     return {
@@ -73,8 +73,8 @@ def get_policy(arn, bucket):
         ]
     }
 
-class AwsWebhookView(MethodView):
 
+class AwsWebhookView(MethodView):
     def post(self):
         data = json.loads(request.data.decode('utf-8'))
         logger.info('Received hook with data {0}'.format(data))
@@ -104,20 +104,22 @@ class AwsWebhookView(MethodView):
             elif record['eventName'].startswith('ObjectRemoved'):
                 utils.drop_table(name, metadata=db.metadata, engine=db.engine)
 
+
 def cf_bucket():
     env = cfenv.AppEnv()
     if env.app:
         try:
             session = boto3.Session(
                 aws_access_key_id=env.get_credential('access_key_id'),
-                aws_secret_access_key=env.get_credential('secret_access_key'),
-            )
+                aws_secret_access_key=env.get_credential(
+                    'secret_access_key'), )
             s3 = session.resource('s3')
             client = session.client('s3')
             return (client, s3.Bucket(env.get_credential('bucket')))
         except Exception as e:
             logger.error(e)
     return (None, None)
+
 
 def fetch_bucket(bucket_name=None):
     (client, bucket) = cf_bucket()
@@ -140,6 +142,7 @@ def fetch_bucket(bucket_name=None):
             continue
         fetch_key(client, bucket.name, key.key)
 
+
 def fetch_key(client, bucket, key):
     filename = os.path.join('raw', key.replace('/', '-'))
     os.makedirs('raw', exist_ok=True)
@@ -151,7 +154,9 @@ def fetch_key(client, bucket, key):
     except Exception as error:
         logger.exception(error)
 
+
 def make_blueprint():
     blueprint = Blueprint('aws', __name__)
-    blueprint.add_url_rule('/webhook/', view_func=AwsWebhookView.as_view('aws_webhook'))
+    blueprint.add_url_rule('/webhook/',
+                           view_func=AwsWebhookView.as_view('aws_webhook'))
     return blueprint

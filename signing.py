@@ -8,8 +8,11 @@ from cryptography.hazmat import backends
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 
-NOTIFICATION_KEYS = ['Message', 'MessageId', 'Subject', 'Timestamp', 'TopicArn', 'Type']
-CONFIRMATION_KEYS = ['Message', 'MessageId', 'SubscribeURL', 'Timestamp', 'Token', 'TopicArn', 'Type']  # noqa
+NOTIFICATION_KEYS = ['Message', 'MessageId', 'Subject', 'Timestamp',
+                     'TopicArn', 'Type']
+CONFIRMATION_KEYS = ['Message', 'MessageId', 'SubscribeURL', 'Timestamp',
+                     'Token', 'TopicArn', 'Type']  # noqa
+
 
 def verify(payload, region='us-east-1'):
     key = get_public_key(payload['SigningCertURL'], region=region)
@@ -19,6 +22,7 @@ def verify(payload, region='us-east-1'):
     verifier.update(message)
     verifier.verify()
 
+
 def get_public_key(url, region='us-east-1'):
     verify_cert_url(url, region=region)
     response = requests.get(url)
@@ -26,15 +30,19 @@ def get_public_key(url, region='us-east-1'):
     cert = x509.load_pem_x509_certificate(response.content, backend=backend)
     return cert.public_key()
 
+
 def verify_cert_url(url, region='us-east-1'):
     parsed = urlparse(url)
     host = 'sns.{0}.amazonaws.com'.format(region)
-    assert parsed.hostname == host, 'Unexpected host {0}'.format(parsed.hostname)
+    assert parsed.hostname == host, 'Unexpected host {0}'.format(
+        parsed.hostname)
+
 
 def get_message(payload):
     if payload['Type'] == 'Notification':
         keys = NOTIFICATION_KEYS
-    elif payload['Type'] in ['SubscriptionConfirmation', 'UnsubscribeConfirmation']:
+    elif payload['Type'] in ['SubscriptionConfirmation',
+                             'UnsubscribeConfirmation']:
         keys = CONFIRMATION_KEYS
     else:
         raise ValueError('Unknown type "{0}"'.format(payload['Type']))
