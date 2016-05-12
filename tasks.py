@@ -51,15 +51,16 @@ def serve():
 def refresh():
     logger.info('Refresh invoked')
     with app.make_app().app_context():
-        rlog = RefreshLog.start()
+        rlog_id = RefreshLog.start()
+        logger.info('refresh log id {} started'.format(rlog_id))
         try:
             aws.fetch_bucket()
             logger.info('bucket fetched')
             utils.refresh_tables()
             logger.info('refresh complete')
-            refresh_log.stop(rlog.id)
+            refresh_log.stop(rlog_id)
         except Exception as e:
-            refresh_log.stop(rlog.id, err_msg=str(e))
+            refresh_log.stop(rlog_id, err_msg=str(e))
 
 
 @task

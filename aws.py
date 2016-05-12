@@ -1,4 +1,5 @@
 """Helpers for subscribing to S3 buckets."""
+import glob
 import json
 import logging
 import os
@@ -134,21 +135,28 @@ def fetch_bucket(bucket_name=None):
         s3 = boto3.resource('s3')
         client = boto3.client('s3')
         bucket = s3.Bucket(bucket_name)
+
     utils.clear_tables()
-    # ??  TODO: determine necessity
+    os.makedirs('raw', exist_ok=True)
+    for existing in os.listdir('raw'):
+        existing_file_path = os.path.join('raw', existing)
+        logger.info('deleting {}'.format(existing_file_path))
+        os.remove(existing_file_path)
+
     for key in bucket.objects.all():
         name, ext = os.path.splitext(key.key)
+        logger.info('object found in bucket: {}.{}'.format(name, ext))
         if ext.lstrip('.') not in csvkit.convert.SUPPORTED_FORMATS:
             continue
         fetch_key(client, bucket.name, key.key)
 
 
 def fetch_key(client, bucket, key):
+    logger.info('fetching key {} from AWS'.format(key))
     filename = os.path.join('raw', key.replace('/', '-'))
-    os.makedirs('raw', exist_ok=True)
-    logger.info('Downloading file {}'.format(filename))
+
     client.download_file(bucket, key, filename)
-    logger.info('Downloaded')
+    logger.info('Downloaded {}'.format(filename))
     try:
         tasks.apify(filename)
     except Exception as error:

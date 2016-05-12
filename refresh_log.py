@@ -29,7 +29,7 @@ class AutoapiTableRefreshLog(db.Model):
         log_entry = cls()
         db.session.add(log_entry)
         db.session.commit()
-        return log_entry
+        return log_entry.id
 
     @classmethod
     def stop_hung(cls):

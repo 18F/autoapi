@@ -24,8 +24,8 @@ your files and API server will 'live'.
     <td>
       <ol>
         <li>Set up <a href="#local-environment">local environment</a></li>
-        <li><code>invoke apify my_table.csv</code>li>                      
-        <li><code>invoke serve</code>li>                                   
+        <li><code>invoke apify my_table.csv</code></li>                      
+        <li><code>invoke serve</code></li>                                   
       </ol>
     </td>
   </tr>
@@ -42,7 +42,7 @@ your files and API server will 'live'.
         <li><a href="#s3-credentials">Get S3 credentials</a></li>
         <li><a href="#set-local-env">Set environment with S3 credentials</a></li>
         <li><code>invoke fetch_bucket $AUTOAPI_BUCKET</code></li>
-        <li><code>invoke serve</code>li>
+        <li><code>invoke serve</code></li>
       </ol>
     </td>
   <tr>
@@ -215,6 +215,6 @@ Optional configuration
     cf set-env $AUTOAPI_NAME AUTOAPI_REFRESH_TIMEOUT_SECONDS $AUTOAPI_REFRESH_TIMEOUT_SECONDS
 
 - By default, when serving locally, relational forms of your spreadsheets will be stored in an
-`autoapi.sqlite` SQLite3 database file.  To change, supply an alternate valid [SQLAlchemy database URL](http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html); for example, 
+`autoapi.sqlite` SQLite3 database file.  To change, supply an alternate valid [SQLAlchemy database URL](http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html); for example,
 
     export DATABASE_URL=postgresql://myusername:mypassword@localhost/apidb

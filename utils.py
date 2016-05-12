@@ -70,7 +70,8 @@ def clear_tables(metadata=None, engine=None):
     clearable = [m[1]
                  for m in metadata.tables.items()
                  if m[0] != AutoapiTableRefreshLog.__tablename__]
-    logger.info('{} clearable tables'.format(len(clearable)))
+    logger.info('{} clearable tables:'.format(len(clearable)))
+    logger.info(str([t.name for t in clearable]))
     try:
         metadata.drop_all(tables=clearable)
     except Exception as e:
