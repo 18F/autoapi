@@ -58,7 +58,7 @@ your files and API server will 'live'.
         <li><a href="#cloud-s3">Set up cloud.gov S3 bucket</a></li>
         <li><code>cf restage $AUTOAPI_NAME</code></li>
         <li><a href="#fill-cloud-s3">Place your files on S3 bucket</a></li>
-        <li>Access at https://</li>
+        <li>Access at https://AUTOAPI_NAME.apps.cloud.gov</li>
         <li><a href="#cloud-troubleshoot">cloud.gov troubleshooting</a></li>
       </ol>
     </td>
@@ -76,7 +76,7 @@ your files and API server will 'live'.
         <li><a href="#s3-credentials">Get S3 credentials</a></li>
         <li><a href="#set-cloud-env">Set cloud.gov environment</a></li>
         <li><code>cf restage $AUTOAPI_NAME</code></li>
-        <li>Access at https://</li>
+        <li>Access at https://AUTOAPI_NAME.apps.cloud.gov</li>
         <li><a href="#cloud-troubleshoot">cloud.gov troubleshooting</a></li>
       </ol>
     </td>
@@ -93,16 +93,21 @@ Set up local environment
 
 1. Follow [these instructions]() to
 
-  a. install `virtualenv`
-  a. create a `virtualenv`
-  a. activate the virtualenv in your session, and use that session for the remainder of these steps.
-  a. `pip install -r requirements.txt`
+    - install `virtualenv`
+
+    - create a `virtualenv`
+
+    - activate the virtualenv in your session, and use that session for the remainder of these steps.
+
+    - `pip install -r requirements.txt`
 
 2. Install Swagger static assets:
 
-    npm install
-    npm install gulp
-    gulp
+       ```
+       npm install
+       npm install gulp
+       gulp
+       ```
 
 <div id="s3-credentials"></div>
 
