@@ -48,19 +48,24 @@ def serve():
 
 
 @task
-def refresh():
+def refresh(clear_tables=True):
     logger.info('Refresh invoked')
     with app.make_app().app_context():
         rlog_id = RefreshLog.start()
         logger.info('refresh log id {} started'.format(rlog_id))
         try:
-            aws.fetch_bucket()
+            aws.fetch_bucket(clear_tables=clear_tables)
             logger.debug('bucket fetched')
             utils.refresh_tables()
             logger.info('refresh complete')
             refresh_log.stop(rlog_id)
         except Exception as e:
             refresh_log.stop(rlog_id, err_msg=str(e))
+
+
+@task
+def quick_refresh():
+    refresh(clear_tables=False)
 
 
 @task

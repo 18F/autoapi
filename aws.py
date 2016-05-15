@@ -122,7 +122,7 @@ def cf_bucket():
     return (None, None)
 
 
-def fetch_bucket(bucket_name=None):
+def fetch_bucket(bucket_name=None, clear_tables=True):
     (client, bucket) = cf_bucket()
     if bucket:
         logger.info('Using bound bucket {0}'.format(bucket))
@@ -136,7 +136,8 @@ def fetch_bucket(bucket_name=None):
         client = boto3.client('s3')
         bucket = s3.Bucket(bucket_name)
 
-    utils.clear_tables()
+    if clear_tables:
+        utils.clear_tables()
 
     for key in bucket.objects.all():
         name, ext = os.path.splitext(key.key)

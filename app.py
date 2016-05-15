@@ -43,6 +43,9 @@ def make_app():
                 return basic_auth.challenge()
 
     class RefreshTables(View):
+
+        task_name = 'refresh'
+
         def dispatch_request(self):
             underway = RefreshLog.refresh_underway()
             if underway:
@@ -52,13 +55,18 @@ def make_app():
                     underway.begun_at, datetime.now(),
                     config.REFRESH_TIMEOUT_SECONDS)
             try:
-                subprocess.Popen(['invoke', 'refresh'])
+                subprocess.Popen(['invoke', self.task_name, ])
             except Exception as e:
                 print('Problem with table refresh:')
                 print(e)
             return 'Table refresh requested.'
 
+    class QuickRefreshTables(RefreshTables):
+
+        task_name = 'quick_refresh'
+
     app.add_url_rule('/refresh/', view_func=RefreshTables.as_view('refresh'))
+    app.add_url_rule('/quick_refresh/', view_func=QuickRefreshTables.as_view('quick_refresh'))
 
     aws_blueprint = aws.make_blueprint()
     app.register_blueprint(aws_blueprint)
