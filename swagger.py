@@ -25,6 +25,7 @@ def make_spec(app):
                    host=config.API_HOST,
                    basePath=config.API_BASE_PATH, )
     for service in getattr(app, '__services__', set()):
+        print('Now registering __service__ {}'.format(str(service)))
         register_service(app, spec, service)
     return spec
 

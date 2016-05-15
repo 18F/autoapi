@@ -137,11 +137,6 @@ def fetch_bucket(bucket_name=None):
         bucket = s3.Bucket(bucket_name)
 
     utils.clear_tables()
-    os.makedirs('raw', exist_ok=True)
-    for existing in os.listdir('raw'):
-        existing_file_path = os.path.join('raw', existing)
-        logger.info('deleting {}'.format(existing_file_path))
-        os.remove(existing_file_path)
 
     for key in bucket.objects.all():
         name, ext = os.path.splitext(key.key)

@@ -55,7 +55,7 @@ def refresh():
         logger.info('refresh log id {} started'.format(rlog_id))
         try:
             aws.fetch_bucket()
-            logger.info('bucket fetched')
+            logger.debug('bucket fetched')
             utils.refresh_tables()
             logger.info('refresh complete')
             refresh_log.stop(rlog_id)

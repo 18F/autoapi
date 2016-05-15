@@ -41,7 +41,7 @@ your files and API server will 'live'.
         <li>Set up <a href="#local-environment">local environment</a></li>
         <li><a href="#s3-credentials">Get S3 credentials</a></li>
         <li><a href="#set-local-env">Set environment with S3 credentials</a></li>
-        <li><code>invoke fetch_bucket $AUTOAPI_BUCKET</code></li>
+        <li><code>invoke fetch_bucket </code></li>
         <li><code>invoke serve</code></li>
       </ol>
     </td>
@@ -105,8 +105,6 @@ Set up local environment
 
        ```
        npm install
-       npm install gulp
-       gulp
        ```
 
 <div id="s3-credentials"></div>

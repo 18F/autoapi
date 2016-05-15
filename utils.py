@@ -70,8 +70,8 @@ def clear_tables(metadata=None, engine=None):
     clearable = [m[1]
                  for m in metadata.tables.items()
                  if m[0] != AutoapiTableRefreshLog.__tablename__]
-    logger.info('{} clearable tables:'.format(len(clearable)))
-    logger.info(str([t.name for t in clearable]))
+    logger.debug('{} clearable tables:'.format(len(clearable)))
+    logger.debug(str([t.name for t in clearable]))
     try:
         metadata.drop_all(tables=clearable)
     except Exception as e:
@@ -164,8 +164,9 @@ def activate():
         sandman2.AutomapModel.classes.clear()
         sandman2.AutomapModel.metadata.clear()
         sandman2._reflect_all(Base=AutomapModel)
-        current_app.__spec__ = swagger.make_spec(current_app)
         tables = get_tables()
+        sandman2.unregister_services(to_keep=tables)
+        current_app.__spec__ = swagger.make_spec(current_app)
         current_app.config['SQLALCHEMY_TABLES'] = tables
 
 
