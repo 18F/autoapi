@@ -139,17 +139,19 @@ Push app to cloud.gov
 
 1. Follow [these instructions](https://docs.cloud.gov/getting-started/accounts/) to
 
-  a. Create a cloud.gov account
-  a. Install the `cf` command-line tool
-  a. `cf login`
-  a. `cf target -o (your organization) -s (your workspace)`
+    1. Create a cloud.gov account
+    1. Install the `cf` command-line tool
+    1. `cf login`
+    1. `cf target -o (your organization) -s (your workspace)`
 
 1. Push the app to cloud.gov, and bind a database service to it:
 
+    ```
     cf push $AUTOAPI_NAME
     cf set-env $AUTOAPI_NAME AUTOAPI_NAME $AUTOAPI_NAME
     cf create-service aws-rds shared-psql ${AUTOAPI_NAME}-db
     cf bind-service $AUTOAPI_NAME ${AUTOAPI_NAME}-db
+    ```
 
 <div id="cloud-troubleshoot"></div>
 
