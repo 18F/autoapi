@@ -171,8 +171,10 @@ Set up an S3 bucket on cloud.gov
 
 1.
 
+    ```
     cf create-service s3 basic ${AUTOAPI_NAME}-s3
     cf bind-service ${AUTOAPI_NAME} ${AUTOAPI_NAME}-s3
+    ```
 
 <div id="fill-cloud-s3"></div>
 
@@ -201,25 +203,50 @@ Set cloud.gov environment for S3
     cf set-env $AUTOAPI_NAME SECRET_ACCESS_KEY (Secret Access Key from IAM user)
     cf set-env $AUTOAPI_NAME AUTOAPI_BUCKET (your s3 bucket name)
 
+Refreshing data
+===============
+
+When the app is run locally, changes to the tables can be reflected
+in the app by repeating `invoke apify` command and, if a table has
+been deleted, by restarting the app.  
+
+When the app is run on cloud.gov, visit the
+https://AUTOAPI_NAME.apps.cloud.gov/quick_refresh endpoint to
+load a new file from S3, or
+https://AUTOAPI_NAME.apps.cloud.gov/refresh to incorporate all
+changes in the files in S3 - including file deletions or changes
+in the data in existing files.
+
+The `autoapi_table_refresh_log` table is used to track the
+progress of any refresh requests currently being handled.
+
 Optional configuration
 ======================
 
 - If your API will not be served from https://api.18f.gov/(API name),
 
+    ```
     export AUTOAPI_HOST=(actual hostname)
     cf set-env $AUTOAPI_NAME AUTOAPI_HOST $AUTOAPI_HOST
+    ```
 
-- The Swagger API interface offers the default API key of DEMO_KEY1 by default.  To changee:
+- The Swagger API interface offers the default API key of DEMO_KEY1 by default.  To change:
 
+    ```
     export AUTOAPI_DEMO_KEY=(actual demo key)
     cf set-env $AUTOAPI_NAME AUTOAPI_DEMO_KEY $AUTOAPI_DEMO_KEY
+    ```
 
 - By default, an in-process refresh is abandoned after one hour.  To change (for example, to 10 minutes):
 
+    ```
     export AUTOAPI_REFRESH_TIMEOUT_SECONDS=600
     cf set-env $AUTOAPI_NAME AUTOAPI_REFRESH_TIMEOUT_SECONDS $AUTOAPI_REFRESH_TIMEOUT_SECONDS
+    ```
 
 - By default, when serving locally, relational forms of your spreadsheets will be stored in an
 `autoapi.sqlite` SQLite3 database file.  To change, supply an alternate valid [SQLAlchemy database URL](http://docs.sqlalchemy.org/en/rel_1_0/core/engines.html); for example,
 
+    ```
     export DATABASE_URL=postgresql://myusername:mypassword@localhost/apidb
+    ```
