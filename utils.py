@@ -55,7 +55,7 @@ def ensure_csv(filename):
         return open(filename)
     logger.info('Converting file {0} to CSV'.format(filename))
     file = tempfile.NamedTemporaryFile('w')
-    converter = In2CSV()
+    converter = In2CSV((filename, ))
     converter.args.input_path = filename
     converter.output_file = file
     converter.main()
