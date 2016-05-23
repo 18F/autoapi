@@ -109,6 +109,21 @@ Set up local environment
 
 <div id="s3-credentials"></div>
 
+Importing local files
+---------------------
+
+A table name differing from the filename can be specified:
+
+    ```
+    invoke apify <filename> <tablename>
+    ```
+
+`apify` supports wildcards - but only if `tablename` is *not* specified:
+
+    ```
+    invoke apify allmydatafiles/*.*
+    ```
+
 Get S3 credentials
 ------------------
 

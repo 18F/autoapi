@@ -4,6 +4,7 @@ import sqlalchemy as sa
 from invoke import run, task
 
 import app
+import glob
 import aws
 import config
 import refresh_log
@@ -24,17 +25,21 @@ def requirements(upgrade=True):
 
 @task
 def apify(filename, tablename=None):
-    tablename = tablename or utils.get_name(filename)
-    logger.info('Importing {0} to table {1}'.format(filename, tablename))
-    try:
-        utils.drop_table(tablename)
-    except sa.exc.OperationalError as e:
-        logger.warning('DROP TABLE {} failed, may not exist?'.format(
-            tablename))
-        logger.warning(str(e))
-    utils.load_table(filename, tablename)
-    utils.index_table(tablename, config.CASE_INSENSITIVE)
-    logger.info('Finished importing {0}'.format(filename))
+    filenames = glob.glob(filename)
+    if len(filenames) > 1 and tablename:
+        raise Exception("Can't specify a `tablename` for >1 file")
+    for filename in filenames:
+        tablename = tablename or utils.get_name(filename)
+        logger.info('Importing {0} to table {1}'.format(filename, tablename))
+        try:
+            utils.drop_table(tablename)
+        except sa.exc.OperationalError as e:
+            logger.debug('DROP TABLE {} failed, may not exist?'.format(
+                tablename))
+            logger.debug(str(e))
+        utils.load_table(filename, tablename)
+        utils.index_table(tablename, config.CASE_INSENSITIVE)
+        logger.info('Finished importing {0}'.format(filename))
 
 
 @task
