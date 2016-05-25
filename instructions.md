@@ -46,9 +46,9 @@ your files and API server will 'live'.
             -v `pwd`/data_sources:/data_sources \
             --rm -it 18fgsa/autoapi
             </pre></code>
-            (The repo contains this as a `run_docker.sh` script)
+            (The repo contains this as a <code>run_docker.sh</code> script)
           </li>                                   
-        <li>View page at IP address from `docker-machine`, typically http://192.168.99.100:5000</li>
+        <li>View page at IP address from <code>docker-machine</code>, typically http://192.168.99.100:5000</li>
       </ol>
     </td>
   </tr>

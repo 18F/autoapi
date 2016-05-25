@@ -25,20 +25,27 @@ def requirements(upgrade=True):
 
 @task
 def apify(filename, tablename=None):
-    filenames = glob.glob(filename)
+    try:
+        filenames = glob.glob(filename, recursive=True)
+    except TypeError:  # recursive glob in Python 3.5+ only
+        filenames = glob.glob(filename)
     if len(filenames) > 1 and tablename:
         raise Exception("Can't specify a `tablename` for >1 file")
     for filename in filenames:
-        tablename = tablename or utils.get_name(filename)
-        logger.info('Importing {0} to table {1}'.format(filename, tablename))
+        _tablename = tablename or utils.get_name(filename)
+        logger.info('Importing {0} to table {1}'.format(filename, _tablename))
         try:
-            utils.drop_table(tablename)
+            utils.drop_table(_tablename)
         except sa.exc.OperationalError as e:
             logger.debug('DROP TABLE {} failed, may not exist?'.format(
-                tablename))
+                _tablename))
             logger.debug(str(e))
-        utils.load_table(filename, tablename)
-        utils.index_table(tablename, config.CASE_INSENSITIVE)
+        try:
+            utils.load_table(filename, _tablename)
+        except Exception as e:
+            logger.error('Failed to load table from file {}'.format(filename))
+            logger.error(str(e))
+        utils.index_table(_tablename, config.CASE_INSENSITIVE)
         logger.info('Finished importing {0}'.format(filename))
 
 
