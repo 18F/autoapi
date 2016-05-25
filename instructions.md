@@ -14,6 +14,44 @@ your files and API server will 'live'.
     <th>CSV at</th>
     <th>Directions</th>
   </tr>
+
+  <tr>
+    <td>
+      local (via Docker)
+    </td>
+    <td>
+      local and/or S3
+    </td>
+    <td>
+      <ol>
+        <li>Install Docker (through <a href="https://kitematic.com/">Kitematic</a>,
+          <a href="https://beta.docker.com/">Docker Beta</a>, or a
+          Linux package manager
+           </li>
+        <li>
+          Place spreadsheet files in a <code>source_data</code> folder or on S3
+        </li>
+        <li>
+          If using S3, <a href="#set-local-env">set environment with S3 credentials</a>
+        </li>                      
+        <li>Use <code>docker-machine ip</code> to get your Docker machine's IP address</li>
+        <li>From the parent directory to `source_data`,
+          <code><pre>
+          docker run \
+            -p 5000:5000 \
+            -e "AUTOAPI_NAME=$AUTOAPI_NAME" \
+            -e "AWS_ACCESS_KEY_ID=$ACCESS_KEY_ID" \
+            -e "AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" \
+            -e "AUTOAPI_BUCKET=$AUTOAPI_BUCKET" \
+            -v `pwd`/data_sources:/data_sources \
+            --rm -it 18fgsa/autoapi
+            </pre></code>
+            (The repo contains this as a `run_docker.sh` script)
+          </li>                                   
+        <li>View page at IP address from `docker-machine`, typically http://192.168.99.100:5000</li>
+      </ol>
+    </td>
+  </tr>
   <tr>
     <td>
       local
@@ -121,8 +159,12 @@ A table name differing from the filename can be specified:
 `apify` supports wildcards - but only if `tablename` is *not* specified:
 
     ```
-    invoke apify allmydatafiles/*.*
+    invoke apify "allmydatafiles/*.*"
     ```
+
+When wildcards are used, enclose the file path in quote marks - otherwise,
+shell expansion will make the second filename look like a tablename and
+confuse `apify`.
 
 Get S3 credentials
 ------------------
