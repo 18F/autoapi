@@ -66,7 +66,8 @@ def make_app():
         task_name = 'quick_refresh'
 
     app.add_url_rule('/refresh/', view_func=RefreshTables.as_view('refresh'))
-    app.add_url_rule('/quick_refresh/', view_func=QuickRefreshTables.as_view('quick_refresh'))
+    app.add_url_rule('/quick_refresh/',
+                     view_func=QuickRefreshTables.as_view('quick_refresh'))
 
     aws_blueprint = aws.make_blueprint()
     app.register_blueprint(aws_blueprint)

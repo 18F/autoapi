@@ -40,8 +40,8 @@ your files and API server will 'live'.
           docker run \
             -p 5000:5000 \
             -e "AUTOAPI_NAME=$AUTOAPI_NAME" \
-            -e "AWS_ACCESS_KEY_ID=$ACCESS_KEY_ID" \
-            -e "AWS_SECRET_ACCESS_KEY=$SECRET_ACCESS_KEY" \
+            -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" \
+            -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" \
             -e "AUTOAPI_BUCKET=$AUTOAPI_BUCKET" \
             -v `pwd`/data_sources:/data_sources \
             --rm -it 18fgsa/autoapi
@@ -185,8 +185,8 @@ Set local environment variables for S3
 
 Using your [S3 credentials](#s3-credentials),
 
-    export ACCESS_KEY_ID=(Access Key ID from IAM user)
-    export SECRET_ACCESS_KEY=(Secret Access Key from IAM user)
+    export AWS_ACCESS_KEY_ID=(Access Key ID from IAM user)
+    export AWS_SECRET_ACCESS_KEY=(Secret Access Key from IAM user)
     export AUTOAPI_BUCKET=(your s3 bucket name)
 
 <div id="push-cloud-gov"></div>
@@ -256,8 +256,8 @@ and `secret_access_key`.
 Set cloud.gov environment for S3
 --------------------------------
 
-    cf set-env $AUTOAPI_NAME ACCESS_KEY_ID (Access Key ID from IAM user)
-    cf set-env $AUTOAPI_NAME SECRET_ACCESS_KEY (Secret Access Key from IAM user)
+    cf set-env $AWS_ACCESS_KEY_ID AWS_ACCESS_KEY_ID (Access Key ID from IAM user)
+    cf set-env $AWS_SECRET_ACCESS_KEY AWS_SECRET_ACCESS_KEY (Secret Access Key from IAM user)
     cf set-env $AUTOAPI_NAME AUTOAPI_BUCKET (your s3 bucket name)
 
 Refreshing data

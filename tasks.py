@@ -1,10 +1,10 @@
+import glob
 import logging
 
 import sqlalchemy as sa
 from invoke import run, task
 
 import app
-import glob
 import aws
 import config
 import refresh_log
