@@ -26,7 +26,7 @@ your files and API server will 'live'.
       <ol>
         <li>Install Docker (through <a href="https://kitematic.com/">Kitematic</a>,
           <a href="https://beta.docker.com/">Docker Beta</a>, or a
-          Linux package manager
+          Linux package manager)
            </li>
         <li>
           Place spreadsheet files in a <code>source_data</code> folder or on S3
@@ -96,7 +96,7 @@ your files and API server will 'live'.
         <li><a href="#cloud-s3">Set up cloud.gov S3 bucket</a></li>
         <li><code>cf restage $AUTOAPI_NAME</code></li>
         <li><a href="#fill-cloud-s3">Place your files on S3 bucket</a></li>
-        <li>Access at https://AUTOAPI_NAME.apps.cloud.gov</li>
+        <li>Access at <code>https://AUTOAPI_NAME.apps.cloud.gov</code></li>
         <li><a href="#cloud-troubleshoot">cloud.gov troubleshooting</a></li>
       </ol>
     </td>
@@ -114,7 +114,7 @@ your files and API server will 'live'.
         <li><a href="#s3-credentials">Get S3 credentials</a></li>
         <li><a href="#set-cloud-env">Set cloud.gov environment</a></li>
         <li><code>cf restage $AUTOAPI_NAME</code></li>
-        <li>Access at https://AUTOAPI_NAME.apps.cloud.gov</li>
+        <li>Access at <code>https://AUTOAPI_NAME.apps.cloud.gov</code></li>
         <li><a href="#cloud-troubleshoot">cloud.gov troubleshooting</a></li>
       </ol>
     </td>
@@ -141,9 +141,9 @@ Set up local environment
 
 2. Install Swagger static assets:
 
-       ```
-       npm install
-       ```
+    ```
+npm install
+    ```
 
 <div id="s3-credentials"></div>
 
@@ -152,15 +152,11 @@ Importing local files
 
 A table name differing from the filename can be specified:
 
-    ```
     invoke apify <filename> <tablename>
-    ```
 
 `apify` supports wildcards - but only if `tablename` is *not* specified:
 
-    ```
     invoke apify "allmydatafiles/*.*"
-    ```
 
 When wildcards are used, enclose the file path in quote marks - otherwise,
 shell expansion will make the second filename look like a tablename and
@@ -226,11 +222,11 @@ Set up an S3 bucket on cloud.gov
 
 1. Arrange payment!  Cloud.gov doesn't have a free tier for S3.
 
-1.
+1. Run:
 
     ```
-    cf create-service s3 basic ${AUTOAPI_NAME}-s3
-    cf bind-service ${AUTOAPI_NAME} ${AUTOAPI_NAME}-s3
+cf create-service s3 basic ${AUTOAPI_NAME}-s3
+cf bind-service ${AUTOAPI_NAME} ${AUTOAPI_NAME}-s3
     ```
 
 <div id="fill-cloud-s3"></div>
@@ -268,9 +264,9 @@ in the app by repeating `invoke apify` command and, if a table has
 been deleted, by restarting the app.  
 
 When the app is run on cloud.gov, visit the
-https://AUTOAPI_NAME.apps.cloud.gov/quick_refresh endpoint to
+`https://AUTOAPI_NAME.apps.cloud.gov/quick_refresh` endpoint to
 load a new file from S3, or
-https://AUTOAPI_NAME.apps.cloud.gov/refresh to incorporate all
+`https://AUTOAPI_NAME.apps.cloud.gov/refresh` to incorporate all
 changes in the files in S3 - including file deletions or changes
 in the data in existing files.
 
@@ -280,7 +276,7 @@ progress of any refresh requests currently being handled.
 Optional configuration
 ======================
 
-- If your API will not be served from https://api.18f.gov/(API name),
+- If your API will not be served from `https://api.18f.gov/(API name)`,
 
     ```
     export AUTOAPI_HOST=(actual hostname)
