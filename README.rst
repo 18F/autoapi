@@ -43,7 +43,7 @@ Quickstart
 Via docker
 ----------
 
-If you have [Docker](docker.io) installed, you can run from a Docker
+If you have `Docker <http://docker.io>`_ installed, you can run from a Docker
 container with no further setup::
 
     docker run \
