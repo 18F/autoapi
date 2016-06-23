@@ -1,6 +1,4 @@
 FROM tsutomu7/alpine-python-pandas
-ADD . /autoapi
-WORKDIR /autoapi
 
 # alpine base image is lacking some repositories, frequently causing
 # downtime when updating packages
@@ -11,6 +9,17 @@ RUN apk add gcc g++ make libffi-dev openssl-dev python3-dev build-base --update-
 RUN apk add nodejs git postgresql postgresql-dev
 RUN mkdir /ve
 RUN pyvenv --system-site-packages /ve/std
-RUN pip install -r /autoapi/requirements.txt
-RUN npm install
+
+COPY requirements.txt /
+
+RUN pip install -r /requirements.txt
+
+# http://bitjudo.com/blog/2014/03/13/building-efficient-dockerfiles-node-dot-js/
+COPY package.json /tmp/package.json
+RUN cd /tmp && npm install
+RUN mkdir -p /autoapi && cp -a /tmp/node_modules /autoapi/
+
+COPY . /autoapi
+
+WORKDIR /autoapi
 CMD /autoapi/run_in_docker.sh
