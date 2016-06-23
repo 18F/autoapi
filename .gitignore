@@ -1,6 +1,7 @@
 # Project-specific rules
 autoapi.sqlite
-node_modules/
+node_modules
+data_sources/
 raw/*
 
 # Byte-compiled / optimized / DLL files
