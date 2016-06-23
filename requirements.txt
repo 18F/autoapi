@@ -1,6 +1,6 @@
 boto3>=1.1.1
 csvkit>=0.9.1
-invoke>=0.10.1
+invoke==0.10.1
 pandas
 # intentionally leaving pandas version blank, b/c `pip install` generally
 # fails on Linux - must use the package manager version
