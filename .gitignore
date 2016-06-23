@@ -2,6 +2,7 @@
 autoapi.sqlite
 node_modules
 data_sources/
+.env
 raw/*
 
 # Byte-compiled / optimized / DLL files

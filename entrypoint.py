@@ -2,11 +2,13 @@ import os
 import sys
 import pwd
 import subprocess
+from dotenv import load_dotenv
 
 
 MY_DIR = os.path.abspath(os.path.dirname(__file__))
 HOST_UID = os.stat(MY_DIR).st_uid
 HOST_USER = 'autoapi_user'
+DOTENV_PATH = os.path.join(os.path.dirname(__file__), '.env')
 
 
 def entrypoint(argv):
@@ -67,4 +69,6 @@ def does_uid_exist(uid):
 
 
 if __name__ == "__main__":
+    if os.path.exists(DOTENV_PATH):
+        load_dotenv(DOTENV_PATH)
     entrypoint(sys.argv)
