@@ -40,8 +40,8 @@ Quickstart
     curl http://localhost:5000/sample/1
     curl http://localhost:5000/sample?LastName=SMITH
 
-Via docker
-----------
+Deployment via docker
+---------------------
 
 If you have `Docker <http://docker.io>`_ installed, you can run from a Docker
 container with no further setup::
@@ -54,6 +54,42 @@ container with no further setup::
       -e "AUTOAPI_BUCKET=$AUTOAPI_BUCKET" \
       -v `pwd`/data_sources:/data_sources \
       --rm -it 18fgsa/autoapi
+
+Note that this sets up your autoapi instance by directly
+pulling autoapi from its
+`Docker Hub image <https://hub.docker.com/r/18fgsa/autoapi/>`_; it doesn't
+even require you to clone autoapi's git repository. However, as a
+result you won't be able to develop autoapi itself.
+
+Development via docker
+----------------------
+
+If you'd like to use Docker for developing autoapi, just clone its
+repository and generate some sample data::
+
+    mkdir data_sources
+    cat << EOF > data_sources/my_sample_data.csv
+    name,color
+    apple,red
+    grapefruit,pink
+    EOF
+
+Then you'll want to build the docker image and start the server::
+
+    docker-compose build
+    docker-compose up
+
+Now you can visit your server at http://localhost:5000.
+
+If you want to set any environment variables, you can do so by creating
+a ``.env`` file in the root directory of the repository, where each line
+consists of a ``NAME=VALUE`` pair.
+
+If any dependencies change, such as those listed in ``requirements.txt``
+or ``package.json``, just re-run ``docker-compose build``.
+
+For more information on using Docker for development, see the
+`18F Docker Guide <https://pages.18f.gov/dev-environment-standardization/virtualization/docker/>`_.
 
 Database Configuration
 ----------------------
