@@ -1,0 +1,9 @@
+app:
+  build: .
+  volumes:
+    - .:/autoapi
+    - ./data_sources:/data_sources
+  entrypoint: python3 entrypoint.py
+  command: ./run_in_docker.sh
+  ports:
+    - "5000:5000"
