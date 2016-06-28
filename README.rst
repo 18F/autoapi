@@ -1,7 +1,9 @@
 Summary
 -------
 
-AutoAPI is a very simple, very scalable API engine that converts flat data files into a web service.  To add, edit, and remove data from the API, you just add, overwrite, or delete flat files from an s3 bucket.
+AutoAPI is a very simple, very scalable API engine that converts flat data files into a web service.  To add, edit, and remove data from the API, you just add, overwrite, or delete flat CSV files from either an s3 bucket or your local filesystem.
+
+Currently, AutoAPI is the core offering of the `18F API Program <https://pages.18f.gov/api-program/>`_, a comprehensive solution for government agencies to get up-and-running with production APIs quickly.
 
 
 Example Instance
