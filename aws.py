@@ -149,7 +149,11 @@ def fetch_bucket(bucket_name=None, clear_tables=True):
 
 def fetch_key(client, bucket, key):
     logger.info('fetching key {} from AWS'.format(key))
-    filename = os.path.join('raw', key.replace('/', '-'))
+    dirname = 'raw'
+    filename = os.path.join(dirname, key.replace('/', '-'))
+
+    if not os.path.exists(dirname):
+        os.mkdir(dirname)
 
     client.download_file(bucket, key, filename)
     logger.info('Downloaded {}'.format(filename))
