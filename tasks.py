@@ -50,6 +50,21 @@ def apify(filename, tablename=None):
 
 
 @task
+def delete_from_bucket(filename, bucket_name=None):
+    aws.delete_from_bucket(filename, bucket_name)
+
+
+@task
+def copy_to_bucket(filename, bucket_name=None):
+    aws.copy_to_bucket(filename, bucket_name)
+
+
+@task
+def list_bucket(bucket_name=None):
+    aws.list_bucket(bucket_name)
+
+
+@task
 def fetch_bucket(bucket_name=None):
     aws.fetch_bucket(bucket_name)
 
