@@ -122,7 +122,12 @@ def cf_bucket():
     return (None, None)
 
 
-def fetch_bucket(bucket_name=None, clear_tables=True):
+def _get_bucket(bucket_name=None):
+    '''
+    Return a tuple containing a Boto3 S3 client and a Boto3
+    S3 bucket.
+    '''
+
     (client, bucket) = cf_bucket()
     if bucket:
         logger.info('Using bound bucket {0}'.format(bucket))
@@ -135,6 +140,53 @@ def fetch_bucket(bucket_name=None, clear_tables=True):
         s3 = boto3.resource('s3')
         client = boto3.client('s3')
         bucket = s3.Bucket(bucket_name)
+
+    return (client, bucket)
+
+
+def delete_from_bucket(filename, bucket_name=None):
+    (client, bucket) = _get_bucket(bucket_name)
+
+    bucket.delete_objects(
+        Delete={
+            'Objects': [
+                {'Key': filename}
+            ]
+        }
+    )
+
+    logger.info('deleted {}.'.format(filename))
+
+
+def copy_to_bucket(filename, bucket_name=None):
+    (client, bucket) = _get_bucket(bucket_name)
+
+    keyname = os.path.basename(filename)
+
+    with open(filename, 'rb') as f:
+        bucket.put_object(
+            Body=f,
+            Key=keyname
+        )
+
+    logger.info('uploaded {}.'.format(keyname))
+
+
+def list_bucket(bucket_name=None):
+    (client, bucket) = _get_bucket(bucket_name)
+
+    for key in bucket.objects.all():
+        print(key.key)
+
+
+def fetch_bucket(bucket_name=None, clear_tables=True):
+    '''
+    Download the CSV files in the given bucket and add their
+    data to the database, optionally clearing the relevant
+    database tables first.
+    '''
+
+    (client, bucket) = _get_bucket(bucket_name)
 
     if clear_tables:
         utils.clear_tables()
