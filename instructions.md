@@ -50,6 +50,8 @@ your files and API server will 'live'.
           </li>                                   
         <li>View page at IP address from <code>docker-machine</code>, typically http://192.168.99.100:5000</li>
       </ol>
+      To develop autoapi itself with Docker, see
+      <a href="#develop-with-docker">these instructions</a>.
     </td>
   </tr>
   <tr>
@@ -181,9 +183,9 @@ Set local environment variables for S3
 
 Using your [S3 credentials](#s3-credentials),
 
-    export AWS_ACCESS_KEY_ID=(Access Key ID from IAM user)
-    export AWS_SECRET_ACCESS_KEY=(Secret Access Key from IAM user)
-    export AUTOAPI_BUCKET=(your s3 bucket name)
+    export AWS_ACCESS_KEY_ID=(AWS Access Key ID from IAM user)
+    export AWS_SECRET_ACCESS_KEY=(AWS Secret Access Key from IAM user)
+    export AUTOAPI_BUCKET=(name of s3 bucket containing CSV files)
 
 <div id="push-cloud-gov"></div>
 
@@ -256,6 +258,31 @@ Set cloud.gov environment for S3
     cf set-env $AWS_SECRET_ACCESS_KEY AWS_SECRET_ACCESS_KEY (Secret Access Key from IAM user)
     cf set-env $AUTOAPI_NAME AUTOAPI_BUCKET (your s3 bucket name)
 
+<div id="developing-with-docker"></div>
+
+Developing with Docker
+----------------------
+
+The Docker instructions above will let you use autoapi as-is,
+but if you'd like to use Docker for *developing* autoapi,
+just clone its
+repository, build the docker image and start the server::
+
+    docker-compose build
+    docker-compose up
+
+Now you can visit your server at http://localhost:5000.
+
+If you want to set any environment variables, you can do so by creating
+a ``.env`` file in the root directory of the repository, where each line
+consists of a ``NAME=VALUE`` pair.
+
+If any dependencies change, such as those listed in ``requirements.txt``
+or ``package.json``, just re-run ``docker-compose build``.
+
+For more information on using Docker for development, see the
+[18F Docker Guide](https://pages.18f.gov/dev-environment-standardization/virtualization/docker/).
+
 Refreshing data
 ===============
 
@@ -303,3 +330,13 @@ Optional configuration
     ```
     export DATABASE_URL=postgresql://myusername:mypassword@localhost/apidb
     ```
+
+Database Configuration
+----------------------
+
+By default, autoapi uses a local SQLite database. To specify a different database URI, set the ``DATABASE_URL`` environment variable. For use with Cloud Foundry, simply create and bind an RDS service; this will automatically configure the environment.
+
+    cf create-service rds shared-psql autoapi-rds
+    cf bind-service autoapi autoapi-rds
+
+For details on RDS services available through 18F Cloud Foundry, see https://docs.cloud.gov/apps/databases/.
