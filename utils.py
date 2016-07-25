@@ -1,8 +1,6 @@
 import logging
-import multiprocessing
 import os
 import tempfile
-import threading
 
 import pandas as pd
 import sqlalchemy as sa
@@ -87,11 +85,13 @@ def load_table(filename,
     engine = engine or sa.create_engine(config.SQLA_URI)
     file = ensure_csv(filename)
     # Pass data types to iterator to ensure consistent types across chunks
-    dtypes = pd.read_csv(file.name, nrows=infer_size).dtypes
+    dtypes = pd.read_csv(file.name, nrows=infer_size,
+                         skipinitialspace=True).dtypes
     chunks = pd.read_csv(file.name,
                          chunksize=chunk_size,
                          iterator=True,
-                         dtype=dtypes)
+                         dtype=dtypes,
+                         skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
         chunk.index += chunk_size * idx
         sql_engine = pandasSQL_builder(engine)
