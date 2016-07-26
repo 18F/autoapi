@@ -45,6 +45,10 @@ First, let's get dependencies sorted out::
     pip3 install -r requirements.txt
     npm install
 
+To run tests::
+
+    py.test test*.py
+
 The easiest way to get started with autoapi is by serving CSV files from
 your local filesystem.
 

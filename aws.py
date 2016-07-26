@@ -1,5 +1,4 @@
 """Helpers for subscribing to S3 buckets."""
-import glob
 import json
 import logging
 import os
@@ -12,7 +11,6 @@ import requests
 from flask import Blueprint, jsonify, request
 from flask.views import MethodView
 
-import aws
 import config
 import signing
 import tasks
