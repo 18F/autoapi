@@ -2,7 +2,7 @@ import os
 import subprocess
 from datetime import datetime
 
-from flask import Flask, request
+from flask import request
 from flask.ext.basicauth import BasicAuth
 from flask.ext.cors import CORS
 from flask.views import View
