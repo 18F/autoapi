@@ -82,23 +82,23 @@ def load_table(filename,
                tablename,
                engine=None,
                infer_size=100,
-               chunk_size=1000):
+               chunksize=1000):
     engine = engine or sa.create_engine(config.SQLA_URI)
     file = ensure_csv(filename)
     # Pass data types to iterator to ensure consistent types across chunks
     dtypes = pd.read_csv(file.name, nrows=infer_size,
                          skipinitialspace=True).dtypes
     chunks = pd.read_csv(file.name,
-                         chunksize=chunk_size,
                          iterator=True,
+                         chunksize=chunksize,
                          dtype=dtypes,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
-        chunk.index += chunk_size * idx
+        chunk.index += chunksize * idx
         to_sql(tablename,
                engine,
                chunk,
-               chunksize=chunk_size,
+               chunksize=chunksize,
                keys='index',
                if_exists='append', )
 
