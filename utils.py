@@ -37,7 +37,8 @@ AutomapModel = automap_base(cls=(Base, model.db.Model))
 
 
 def to_sql(name, engine, frame, chunksize=None, **kwargs):
-    table = SQLTable(name, engine, frame=frame, **kwargs)
+    pandas_sql_engine = pandasSQL_builder(engine)
+    table = SQLTable(name, pandas_sql_engine, frame=frame, **kwargs)
     table.create()
     table.insert(chunksize)
 
@@ -94,9 +95,8 @@ def load_table(filename,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
         chunk.index += chunk_size * idx
-        sql_engine = pandasSQL_builder(engine)
         to_sql(tablename,
-               sql_engine,
+               engine,
                chunk,
                chunksize=chunk_size,
                keys='index',
