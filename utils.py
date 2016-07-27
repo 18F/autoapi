@@ -89,7 +89,6 @@ def load_table(filename,
     dtypes = pd.read_csv(file.name, nrows=infer_size,
                          skipinitialspace=True).dtypes
     chunks = pd.read_csv(file.name,
-                         iterator=True,
                          chunksize=chunksize,
                          dtype=dtypes,
                          skipinitialspace=True)
