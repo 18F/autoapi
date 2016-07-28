@@ -6,7 +6,6 @@ from invoke import run, task
 
 import app
 import aws
-import config
 import refresh_log
 import utils
 from refresh_log import AutoapiTableRefreshLog as RefreshLog
@@ -45,7 +44,6 @@ def apify(filename, tablename=None):
         except Exception as e:
             logger.error('Failed to load table from file {}'.format(filename))
             logger.error(str(e))
-        utils.index_table(_tablename, config.CASE_INSENSITIVE)
         logger.info('Finished importing {0}'.format(filename))
 
 

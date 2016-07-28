@@ -80,9 +80,11 @@ def clear_tables(metadata=None, engine=None):
 
 def load_table(filename,
                tablename,
+               metadata=None,
                engine=None,
                infer_size=100,
                chunksize=1000):
+    metadata = metadata or sa.MetaData()
     engine = engine or sa.create_engine(config.SQLA_URI)
     file = ensure_csv(filename)
     # Pass data types to iterator to ensure consistent types across chunks
@@ -100,14 +102,13 @@ def load_table(filename,
                chunksize=chunksize,
                keys='index',
                if_exists='append', )
+    index_table(tablename, metadata, engine, config.CASE_INSENSITIVE)
 
 
-def index_table(tablename, case_insensitive=False, metadata=None, engine=None):
+def index_table(tablename, metadata, engine, case_insensitive=False):
     """Index all columns on `tablename`, optionally using case-insensitive
     indexes on string columns when supported by the database.
     """
-    metadata = metadata or sa.MetaData()
-    engine = engine or sa.create_engine(config.SQLA_URI)
     table = sa.Table(tablename, metadata, autoload_with=engine)
     for label, column in table.columns.items():
         if label == 'index':
