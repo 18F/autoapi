@@ -19,12 +19,12 @@ class TestLoadTable():
     def teardown_method(self, method):
         self.meta.drop_all()
 
-    def load_table(self, tmpdir, csv_str, table_name):
+    def load_table(self, tmpdir, csv_str, table_name, **kwargs):
         file_name = '{}.csv'.format(table_name)
         csv_file = tmpdir.join(file_name)
         csv_file.write(csv_str)
 
-        utils.load_table(str(csv_file), table_name)
+        utils.load_table(str(csv_file), table_name, **kwargs)
         self.meta.reflect()
 
     def test_good_csv(self, tmpdir):
@@ -46,6 +46,24 @@ class TestLoadTable():
 
         assert people.columns['index'].primary_key is True
         assert people.columns['name'].primary_key is False
+
+        connection = self.engine.connect()
+        results = connection.execute(
+            select([people]).order_by(people.c.index)).fetchall()
+        assert (0, 'Tom', '1980-02-26', '0') == results[0]
+        assert (1, 'Dick', '1982-03-14', '3') == results[1]
+        assert (2, 'Harry', '1972-11-24', '2') == results[2]
+
+    def test_load_with_chunking(self, tmpdir):
+        CSV = """name, dob, number_of_pets
+        Tom, 1980-02-26, 0
+        Dick, 1982-03-14, 3
+        Harry, 1972-11-24, 2
+        """
+
+        self.load_table(tmpdir, CSV, 'people', chunksize=1)
+
+        people = self.meta.tables['people']
 
         connection = self.engine.connect()
         results = connection.execute(

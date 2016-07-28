@@ -37,7 +37,8 @@ AutomapModel = automap_base(cls=(Base, model.db.Model))
 
 
 def to_sql(name, engine, frame, chunksize=None, **kwargs):
-    table = SQLTable(name, engine, frame=frame, **kwargs)
+    pandas_sql_engine = pandasSQL_builder(engine)
+    table = SQLTable(name, pandas_sql_engine, frame=frame, **kwargs)
     table.create()
     table.insert(chunksize)
 
@@ -81,24 +82,22 @@ def load_table(filename,
                tablename,
                engine=None,
                infer_size=100,
-               chunk_size=1000):
+               chunksize=1000):
     engine = engine or sa.create_engine(config.SQLA_URI)
     file = ensure_csv(filename)
     # Pass data types to iterator to ensure consistent types across chunks
     dtypes = pd.read_csv(file.name, nrows=infer_size,
                          skipinitialspace=True).dtypes
     chunks = pd.read_csv(file.name,
-                         chunksize=chunk_size,
-                         iterator=True,
+                         chunksize=chunksize,
                          dtype=dtypes,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
-        chunk.index += chunk_size * idx
-        sql_engine = pandasSQL_builder(engine)
+        chunk.index += chunksize * idx
         to_sql(tablename,
-               sql_engine,
+               engine,
                chunk,
-               chunksize=chunk_size,
+               chunksize=chunksize,
                keys='index',
                if_exists='append', )
 
