@@ -102,10 +102,10 @@ def load_table(filename,
                chunksize=chunksize,
                keys='index',
                if_exists='append', )
-    index_table(tablename, metadata, engine, config.CASE_INSENSITIVE)
+    _index_table(tablename, metadata, engine, config.CASE_INSENSITIVE)
 
 
-def index_table(tablename, metadata, engine, case_insensitive=False):
+def _index_table(tablename, metadata, engine, case_insensitive=False):
     """Index all columns on `tablename`, optionally using case-insensitive
     indexes on string columns when supported by the database.
     """

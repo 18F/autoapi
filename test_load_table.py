@@ -3,12 +3,24 @@ import utils
 
 
 import pytest
-from sqlalchemy import create_engine, MetaData
+from sqlalchemy import create_engine, inspect, MetaData
 from sqlalchemy.sql import select
 
 
 def assert_column_type(column, expected_type):
     assert column.type.python_type == expected_type
+
+
+def assert_columns_have_non_unique_indexes(engine, table_name, *columns):
+    inspection = inspect(engine)
+
+    non_unique_1_column_indexes = [
+        index['column_names'][0]
+        for index in inspection.get_indexes(table_name)
+        if not index['unique'] and len(index['column_names']) == 1
+    ]
+
+    assert set(columns) <= set(non_unique_1_column_indexes)
 
 
 class TestLoadTable():
@@ -46,6 +58,9 @@ class TestLoadTable():
 
         assert people.columns['index'].primary_key is True
         assert people.columns['name'].primary_key is False
+
+        assert_columns_have_non_unique_indexes(self.engine, 'people', 'name',
+                                               'dob', 'number_of_pets')
 
         connection = self.engine.connect()
         results = connection.execute(
