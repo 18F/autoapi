@@ -51,12 +51,12 @@ class TestLoadTable():
         assert 'people' in self.meta.tables
         people = self.meta.tables['people']
 
-        assert_column_type(people.columns['index'], int)
+        assert_column_type(people.columns['id'], int)
         assert_column_type(people.columns['name'], str)
         assert_column_type(people.columns['dob'], str)
         assert_column_type(people.columns['number_of_pets'], str)
 
-        assert people.columns['index'].primary_key is True
+        assert people.columns['id'].primary_key is True
         assert people.columns['name'].primary_key is False
 
         assert_columns_have_non_unique_indexes(self.engine, 'people', 'name',
@@ -64,7 +64,7 @@ class TestLoadTable():
 
         connection = self.engine.connect()
         results = connection.execute(
-            select([people]).order_by(people.c.index)).fetchall()
+            select([people]).order_by(people.c.id)).fetchall()
         assert (0, 'Tom', '1980-02-26', '0') == results[0]
         assert (1, 'Dick', '1982-03-14', '3') == results[1]
         assert (2, 'Harry', '1972-11-24', '2') == results[2]
@@ -82,7 +82,7 @@ class TestLoadTable():
 
         connection = self.engine.connect()
         results = connection.execute(
-            select([people]).order_by(people.c.index)).fetchall()
+            select([people]).order_by(people.c.id)).fetchall()
         assert (0, 'Tom', '1980-02-26', '0') == results[0]
         assert (1, 'Dick', '1982-03-14', '3') == results[1]
         assert (2, 'Harry', '1972-11-24', '2') == results[2]
@@ -120,7 +120,7 @@ class TestLoadTable():
 
         connection = self.engine.connect()
         results = connection.execute(
-            select([people]).order_by(people.c.index)).fetchall()
+            select([people]).order_by(people.c.id)).fetchall()
         assert (0, 'Tom', '0') == results[0]
         assert (1, None, '3') == results[1]
         assert (2, None, '2') == results[2]

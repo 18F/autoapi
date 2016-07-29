@@ -96,11 +96,12 @@ def load_table(filename,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
         chunk.index += chunksize * idx
+        chunk.index.name = 'id'
         to_sql(tablename,
                engine,
                chunk,
                chunksize=chunksize,
-               keys='index',
+               keys='id',
                if_exists='append', )
     _index_table(tablename, metadata, engine, config.CASE_INSENSITIVE)
 
@@ -111,7 +112,7 @@ def _index_table(tablename, metadata, engine, case_insensitive=False):
     """
     table = sa.Table(tablename, metadata, autoload_with=engine)
     for label, column in table.columns.items():
-        if label == 'index':
+        if label == 'id':
             continue
         index_name = 'ix_{0}'.format(label.lower())
         indexes = [sa.Index(index_name, column)]
