@@ -95,7 +95,7 @@ def load_table(filename,
                          dtype=dtypes,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
-        chunk.index += chunksize * idx
+        chunk.index += chunksize * idx + 1
         chunk.index.name = 'id'
         to_sql(tablename,
                engine,
