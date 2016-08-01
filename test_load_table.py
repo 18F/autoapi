@@ -65,9 +65,9 @@ class TestLoadTable():
         connection = self.engine.connect()
         results = connection.execute(
             select([people]).order_by(people.c.id)).fetchall()
-        assert (0, 'Tom', '1980-02-26', '0') == results[0]
-        assert (1, 'Dick', '1982-03-14', '3') == results[1]
-        assert (2, 'Harry', '1972-11-24', '2') == results[2]
+        assert (1, 'Tom', '1980-02-26', '0') == results[0]
+        assert (2, 'Dick', '1982-03-14', '3') == results[1]
+        assert (3, 'Harry', '1972-11-24', '2') == results[2]
 
     def test_load_with_chunking(self, tmpdir):
         CSV = """name, dob, number_of_pets
@@ -83,9 +83,9 @@ class TestLoadTable():
         connection = self.engine.connect()
         results = connection.execute(
             select([people]).order_by(people.c.id)).fetchall()
-        assert (0, 'Tom', '1980-02-26', '0') == results[0]
-        assert (1, 'Dick', '1982-03-14', '3') == results[1]
-        assert (2, 'Harry', '1972-11-24', '2') == results[2]
+        assert (1, 'Tom', '1980-02-26', '0') == results[0]
+        assert (2, 'Dick', '1982-03-14', '3') == results[1]
+        assert (3, 'Harry', '1972-11-24', '2') == results[2]
 
     def test_empty_csv(self, tmpdir):
         file_name = 'empty.csv'
@@ -121,9 +121,9 @@ class TestLoadTable():
         connection = self.engine.connect()
         results = connection.execute(
             select([people]).order_by(people.c.id)).fetchall()
-        assert (0, 'Tom', '0') == results[0]
-        assert (1, None, '3') == results[1]
-        assert (2, None, '2') == results[2]
+        assert (1, 'Tom', '0') == results[0]
+        assert (2, None, '3') == results[1]
+        assert (3, None, '2') == results[2]
 
     def test_embedded_space_in_tablename_and_filename(self, tmpdir):
         CSV = """name, number_of_pets
