@@ -142,7 +142,7 @@ def drop_table(tablename, metadata=None, engine=None):
 
 def get_tables(engine=None):
     engine = engine or sa.create_engine(config.SQLA_URI)
-    inspector = sa.engine.reflection.Inspector.from_engine(sandman2.db.engine)
+    inspector = sa.engine.reflection.Inspector.from_engine(engine)
     return set(inspector.get_table_names())
 
 

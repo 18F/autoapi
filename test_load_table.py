@@ -29,7 +29,9 @@ class TestLoadTable():
         self.meta = MetaData(bind=self.engine)
 
     def teardown_method(self, method):
-        self.meta.drop_all()
+        tables = utils.get_tables(engine=self.engine)
+        for table in tables:
+            utils.drop_table(table, metadata=self.meta, engine=self.engine)
 
     def load_table(self, tmpdir, csv_str, table_name, **kwargs):
         file_name = '{}.csv'.format(table_name)
