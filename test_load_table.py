@@ -40,10 +40,12 @@ class TestLoadTable():
         self.meta.reflect()
 
     def test_good_csv(self, tmpdir):
-        CSV = """name, dob, number_of_pets, weight
-        Tom, 1980-02-26, 0, 146.8
-        Dick, 1982-03-14, 3, 183.1
-        Harry, 1972-11-24, 2, 178.7
+        # True, TRUE, true => True
+        # False, FALSE, false => False
+        CSV = """name, dob, number_of_pets, weight, dog_lover
+        Tom, 1980-02-26, 0, 146.8, TRUE
+        Dick, 1982-03-14, 3, 183.1, False
+        Harry, 1972-11-24, 2, 178.7, false
         """
 
         self.load_table(tmpdir, CSV, 'people')
@@ -56,6 +58,7 @@ class TestLoadTable():
         assert_column_type(people.columns['dob'], str)
         assert_column_type(people.columns['number_of_pets'], int)
         assert_column_type(people.columns['weight'], float)
+        assert_column_type(people.columns['dog_lover'], bool)
 
         assert people.columns['id'].primary_key is True
         assert people.columns['name'].primary_key is False
@@ -66,9 +69,9 @@ class TestLoadTable():
         connection = self.engine.connect()
         results = connection.execute(
             select([people]).order_by(people.c.id)).fetchall()
-        assert (1, 'Tom', '1980-02-26', 0, 146.8) == results[0]
-        assert (2, 'Dick', '1982-03-14', 3, 183.1) == results[1]
-        assert (3, 'Harry', '1972-11-24', 2, 178.7) == results[2]
+        assert (1, 'Tom', '1980-02-26', 0, 146.8, True) == results[0]
+        assert (2, 'Dick', '1982-03-14', 3, 183.1, False) == results[1]
+        assert (3, 'Harry', '1972-11-24', 2, 178.7, False) == results[2]
 
     def test_load_with_chunking(self, tmpdir):
         CSV = """name, dob, number_of_pets
