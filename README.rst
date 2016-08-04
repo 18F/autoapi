@@ -6,6 +6,11 @@ AutoAPI is a very simple, very scalable API engine that converts flat data files
 Currently, AutoAPI is the core offering of the `18F API Program <https://pages.18f.gov/api-program/>`_, a comprehensive solution for government agencies to get up-and-running with production APIs quickly.
 
 
+Status
+------
+.. image:: https://travis-ci.org/18F/autoapi.svg?branch=master
+    :target: https://travis-ci.org/18F/autoapi
+
 Example Instance
 ----------------
 
