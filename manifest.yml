@@ -1,2 +1,2 @@
 stack: cflinuxfs2
-buildpack: "https://github.com/ddollar/heroku-buildpack-multi.git"
+buildpack: https://github.com/cloudfoundry/buildpack-python.git
