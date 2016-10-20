@@ -1,1 +1,1 @@
-web: gunicorn main:app --bind 0.0.0.0:$VCAP_APP_PORT --config hooks.py
+web: gunicorn main:app --bind 0.0.0.0:$PORT --config hooks.py
