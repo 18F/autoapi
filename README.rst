@@ -1,5 +1,6 @@
-[![Code Climate](https://codeclimate.com/github/18F/autoapi/badges/gpa.svg)](https://codeclimate.com/github/18F/autoapi)  
-
+.. image:: https://codeclimate.com/github/18F/autoapi/badges/gpa.svg
+   :target: https://codeclimate.com/github/18F/autoapi
+   :alt: Code Climate
 
 Summary
 -------
