@@ -109,6 +109,7 @@ def cf_bucket():
     if env.app:
         try:
             session = boto3.Session(
+                region_name=env.get_credential('region'),
                 aws_access_key_id=env.get_credential('access_key_id'),
                 aws_secret_access_key=env.get_credential(
                     'secret_access_key'), )
