@@ -20,7 +20,7 @@ from sandman2.model import db
 logger = logging.getLogger(__name__)
 
 
-def subscribe(bucket, region='us-east-1'):
+def subscribe(bucket, region='us-gov-west-1'):
     sns = boto3.resource('sns', region)
     client = boto3.client('sns', region)
     topic = get_topic(sns, client)
