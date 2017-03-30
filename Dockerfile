@@ -1,4 +1,4 @@
-FROM tsutomu7/alpine-python-pandas
+FROM amancevice/pandas:0.19-python3
 
 # alpine base image is lacking some repositories, frequently causing
 # downtime when updating packages
