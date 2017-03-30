@@ -74,18 +74,32 @@ class TestLoadTable():
         Tom, 1980-02-26, 0
         Dick, 1982-03-14, 3
         Harry, 1972-11-24, 2
+        Chris, 1991-08-03, 0
+        Jill, 1990-04-15, 1
+        Lorenzo, 2003-01-01, 0
+        Alyssa, 2005-02-02, 1
+        Andrew, 2008-03-03, 1
+        Javi, 2008-04-04, 2
         """
 
-        self.load_table(tmpdir, CSV, 'people', chunksize=1)
+        self.load_table(tmpdir, CSV, 'people', chunksize=4)
 
         people = self.meta.tables['people']
 
         connection = self.engine.connect()
         results = connection.execute(
             select([people]).order_by(people.c.index)).fetchall()
+
         assert (0, 'Tom', '1980-02-26', '0') == results[0]
         assert (1, 'Dick', '1982-03-14', '3') == results[1]
         assert (2, 'Harry', '1972-11-24', '2') == results[2]
+        assert (3, 'Chris', '1991-08-03', '0') == results[3]
+        assert (4, 'Jill', '1990-04-15', '1') == results[4]
+        assert (5, 'Lorenzo', '2003-01-01', '0') == results[5]
+        assert (6, 'Alyssa', '2005-02-02', '1') == results[6]
+        assert (7, 'Andrew', '2008-03-03', '1') == results[7]
+        assert (8, 'Javi', '2008-04-04', '2') == results[8]
+
 
     def test_empty_csv(self, tmpdir):
         file_name = 'empty.csv'
