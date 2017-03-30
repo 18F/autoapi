@@ -15,9 +15,10 @@ marshmallow==2.0.0.b4
 marshmallow-sqlalchemy==0.4.0
 smore==0.2.0
 cfenv==0.5.2
-pytest
-pytest-flask
-pytest-cov
+psycopg2==2.6.1
+pytest==2.9.2
+pytest-flask==0.4.0
+pytest-cov==2.3.0
 
 git+https://github.com/18f/sandman2@table-delete
 git+https://github.com/marshmallow-code/smore@dev
