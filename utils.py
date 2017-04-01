@@ -95,13 +95,13 @@ def load_table(filename,
                          dtype=dtypes,
                          skipinitialspace=True)
     for idx, chunk in enumerate(chunks):
-        chunk.index += chunksize * idx
         to_sql(tablename,
                engine,
                chunk,
                chunksize=chunksize,
                keys='index',
                if_exists='append', )
+
     _index_table(tablename, metadata, engine, config.CASE_INSENSITIVE)
 
 
