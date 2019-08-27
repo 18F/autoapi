@@ -4,7 +4,7 @@ invoke==0.10.1
 pandas
 # intentionally leaving pandas version blank, b/c `pip install` generally
 # fails on Linux - must use the package manager version
-requests==2.7.0
+requests==2.20.0
 gunicorn==19.3.0
 cryptography>=1.0
 Flask==0.10.1
